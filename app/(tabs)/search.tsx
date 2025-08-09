@@ -3,9 +3,10 @@ import { SearchBar } from "@/components/SearchBar";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
+import { updateSearchCount } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, View, Text } from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 
 const Search = () => {
   const [searchTerm, setSearchQuery] = useState("");
@@ -28,6 +29,12 @@ const Search = () => {
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (movies?.length > 0 && movies?.[0]) {
+      updateSearchCount(searchTerm, movies[0]);
+    }
+  }, [movies]);
 
   return (
     <View className="flex-1 bg-primary">
