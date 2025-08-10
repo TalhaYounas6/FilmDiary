@@ -1,3 +1,4 @@
+import { language } from "@/assets/languages";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
 import { useFetch } from "@/services/useFetch";
@@ -20,6 +21,17 @@ const MovieItem = ({label,content}:MovieProps) =>(
 const MovieDetails = () => {
   const {id} = useLocalSearchParams();
   const {data:movie,loading} = useFetch(()=>fetchMovieDetails(id as string))
+  
+           
+            let code = movie?.original_language;
+            let lang;
+            
+            for(const key in language){
+                  if(code == key ){
+	                lang = language[key as keyof typeof language];
+                  }
+            }
+          
   return (
     <View className="bg-primary flex-1">
       <ScrollView contentContainerStyle={{
@@ -47,15 +59,17 @@ const MovieDetails = () => {
              <Text className="text-sm font-bold text-white">{Math.round(movie?.vote_average?? 0)/2}/5</Text>
              <Text className="text-sm text-light-200">({movie?.vote_count} votes)</Text>
           </View>
-
+          
           <MovieItem label="Overview" content={movie?.overview}/>
 
           <MovieItem label="Genre" content={movie?.genres.map((g)=>g.name).join(' - ') || 'N/A'}/>
 
           <View className="flex flex-row justify-between w-1/2">
-            <MovieItem label="Budget" content={`$${movie?.budget/1000000} million` || 'N/A'}/>
+            <MovieItem label="Budget" content={`$${Math.round(movie?.budget/1000000)} million` || 'N/A'}/>
             <MovieItem label="Revenue" content={`$${Math.round(movie?.revenue/1000000)} million` || 'N/A'}/>
           </View>
+          
+          <MovieItem label="Language"  content={lang}/>
 
           <MovieItem label="Production" content={movie?.production_companies.map((c)=>c.name).join(' - ') || 'NA'}/>
           <MovieItem label="Filming Locations" content={movie?.production_countries.map((c)=>c.name).join(' - ') || 'NA'} />

@@ -1,5 +1,4 @@
 import MovieCard from "@/components/MovieCard";
-import { SearchBar } from "@/components/SearchBar";
 import TrendingMovieCard from "@/components/TrendingMovieCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
@@ -13,7 +12,8 @@ import {
   Image,
   ScrollView,
   Text,
-  View,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 export default function Index() {
@@ -56,10 +56,10 @@ export default function Index() {
           </Text>
         ) : (
           <View className="flex-1 mt-5">
-            <SearchBar
-              onPress={() => router.push("/search")}
-              placeholder=" Search for a movie "
-            />
+            
+            <TouchableOpacity onPress={()=>router.push('/(tabs)/search')}>
+              <Text className="text-black font-bold text-xl text-center px-5 py-4 bg-purple-800 rounded-xl">Search for a Movie</Text>
+            </TouchableOpacity>
 
             {trendingMovies && (
               <View className="mt-10">
