@@ -1,9 +1,9 @@
-import { View, Text } from "react-native";
 import React from "react";
+import { Text, View } from "react-native";
 
 const Profile = () => {
   return (
-    <View>
+    <View className="bg-primary px-10 flex-1">
       <Text>profile</Text>
     </View>
   );
