@@ -39,7 +39,7 @@ const Search = () => {
   return (
     <View className="flex-1 bg-primary">
       <Image
-        source={images.bg}
+        source={images.bgpurple}
         className="z-0 flex-1 w-full absolute"
         resizeMode="cover"
       />

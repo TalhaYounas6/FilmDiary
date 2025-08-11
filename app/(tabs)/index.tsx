@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  ScrollView,
   Text,
   TouchableOpacity,
   View
@@ -31,18 +30,25 @@ export default function Index() {
     error: moviesError,
   } = useFetch(() => fetchMovies({ query: "" }));
 
+
+  // <ScrollView
+  //       className="flex-1 px-5"
+  //       showsVerticalScrollIndicator={false}
+  //       contentContainerStyle={{
+  //         minHeight: "100%",
+  //         paddingBottom: 10,
+  //       }}
+  //     ></ScrollView>
+
   return (
     <View className="flex-1 bg-primary">
-      <Image source={images.bg} className="absolute w-full z-0" />
-      <ScrollView
-        className="flex-1 px-5"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          minHeight: "100%",
-          paddingBottom: 10,
-        }}
-      >
-        <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
+           <Image
+              source={images.bgpurple}
+              className="z-0 flex-1 w-full absolute"
+              resizeMode="cover"
+            />
+      
+        
 
         {moviesLoading || trendingMoviesLoading ? (
           <ActivityIndicator
@@ -56,11 +62,15 @@ export default function Index() {
           </Text>
         ) : (
           <View className="flex-1 mt-5">
-            
-            <TouchableOpacity onPress={()=>router.push('/(tabs)/search')}>
-              <Text className="text-black font-bold text-xl text-center px-5 py-4 bg-purple-800 rounded-xl">Search for a Movie</Text>
-            </TouchableOpacity>
 
+              <FlatList
+               showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                  <>
+            <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />      
+            <TouchableOpacity className="w-[30%] mx-auto">
+              <Text className="text-black font-bold text-xl text-center px-4 py-3 bg-green-600 rounded-xl">Connect</Text>
+            </TouchableOpacity>
             {trendingMovies && (
               <View className="mt-10">
                 <Text className="text-lg text-white font-bold mt-5 mb-3">
@@ -68,9 +78,7 @@ export default function Index() {
                 </Text>
               </View>
             )}
-
-            <>
-              <FlatList
+            <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View className="w-4"></View>}
@@ -86,7 +94,8 @@ export default function Index() {
                 Latest Movies
               </Text>
 
-              <FlatList
+                  </>
+                }
                 data={movies}
                 renderItem={({ item }) => <MovieCard {...item} />}
                 keyExtractor={(item) => item.id.toString()}
@@ -94,16 +103,24 @@ export default function Index() {
                 columnWrapperStyle={{
                   justifyContent: "flex-start",
                   gap: 20,
-                  paddingRight: 5,
+                  // paddingRight: 5,
                   marginBottom: 10,
+                  padding:9
                 }}
                 className="mt-2 pb-32"
-                scrollEnabled={false}
+                contentContainerStyle={{
+                  minHeight: "100%",
+                  paddingBottom: 80,
+                  padding:5
+                  
+                }}
+                
+                
               />
-            </>
+            
           </View>
         )}
-      </ScrollView>
+      
     </View>
   );
 }
