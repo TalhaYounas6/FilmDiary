@@ -5,7 +5,8 @@ import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
 import { getTrendingMovies } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
-import { useRouter } from "expo-router";
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -15,8 +16,17 @@ import {
   View
 } from "react-native";
 
+SplashScreen.preventAutoHideAsync();
+
 export default function Index() {
-  const router = useRouter();
+
+  useEffect(()=>{
+    const timer = setTimeout(()=>{
+    SplashScreen.hideAsync();
+    },2000)
+    
+    return ()=>clearTimeout(timer);
+  },[])
 
   const {
     data: trendingMovies,
