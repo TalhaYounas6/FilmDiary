@@ -67,13 +67,13 @@ export default function Index() {
                showsVerticalScrollIndicator={false}
                 ListHeaderComponent={
                   <>
-            <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />      
+            <Image source={icons.logo} className="w-15 h-12 mt-20 mb-5 mx-auto" resizeMode="contain" />      
             <TouchableOpacity className="w-[30%] mx-auto">
               <Text className="text-black font-bold text-xl text-center px-4 py-3 bg-green-600 rounded-xl">Connect</Text>
             </TouchableOpacity>
             {trendingMovies && (
               <View className="mt-10">
-                <Text className="text-lg text-white font-bold mt-5 mb-3">
+                <Text className="text-lg text-white font-bold mt-5 mb-3 ml-2">
                   Trending Movies
                 </Text>
               </View>
@@ -90,7 +90,7 @@ export default function Index() {
                 keyExtractor={(item) => item.movie_id.toString()}
               />
 
-              <Text className="text-lg text-white mt-5 mb-3 font-bold">
+              <Text className="text-lg text-white mt-5 mb-3 font-bold ml-2">
                 Latest Movies
               </Text>
 
