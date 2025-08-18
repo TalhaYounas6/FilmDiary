@@ -1,9 +1,14 @@
-import { Client, Databases, ID, Query } from "react-native-appwrite";
+import { makeRedirectUri } from 'expo-auth-session';
+import { useRouter } from "expo-router";
+import * as WebBrowser from 'expo-web-browser';
+import { Account, Client, Databases, ID, OAuthProvider, Query } from "react-native-appwrite";
 
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
 
-const client = new Client()
+const router = useRouter();
+
+export const client = new Client()
   .setEndpoint("https://nyc.cloud.appwrite.io/v1")
   .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!);
 
@@ -57,3 +62,53 @@ export const getTrendingMovies = async (): Promise<TrendingMovie[]> => {
     return undefined as unknown as TrendingMovie[];
   }
 };
+
+
+
+export const LoginWithGoogleService = async(): Promise<boolean> =>{
+
+  try{
+  const account = new Account(client);
+
+  // Create deep link that works across Expo environments
+  // Ensure localhost is used for the hostname to validation error for success/failure URLs
+  const deepLink = new URL(makeRedirectUri({ preferLocalhost: true }));
+  const scheme = `${deepLink.protocol}//`; // e.g. 'exp://' or 'appwrite-callback-<PROJECT_ID>://'
+
+  // Start OAuth flow
+  const provider = OAuthProvider.Google;
+  const loginUrl = await account.createOAuth2Token(
+    provider,
+    `${deepLink}`,
+    `${deepLink}`,  
+  );
+
+  // Open loginUrl and listen for the scheme redirect
+  const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, scheme);
+
+  // Extract credentials from OAuth redirect URL
+  if( result.type==="success" && result.url){
+    const url = new URL(result.url);
+    const secret = url.searchParams.get('secret');
+    const userId = url.searchParams.get('userId');
+
+    // Create session with OAuth credentials
+  if(typeof(userId)==="string" && typeof(secret)==="string"){
+    await account.createSession(userId, secret);
+    return true;
+      }
+  }
+      return false;
+
+    }catch(error){
+    console.log("Error: ",error);
+    return false;
+    
+  }finally{
+    // Redirect as needed
+    router.push('/(tabs)/profile');
+  }
+  
+
+
+}

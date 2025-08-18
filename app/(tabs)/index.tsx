@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import {makeRedirectUri} from "expo-auth-session"
 
 SplashScreen.preventAutoHideAsync();
 

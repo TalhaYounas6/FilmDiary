@@ -3,9 +3,9 @@
     "name": "FilmDiary",
     "slug": "FilmDiary",
     "version": "1.0.0",
+    "scheme": "appwrite-callback-68876007002c52bce5fa",
     "orientation": "portrait",
     "icon": "./assets/icons/logo.png",
-    "scheme": "movies",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -36,7 +36,8 @@
           },
           "imageWidth": 200
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
