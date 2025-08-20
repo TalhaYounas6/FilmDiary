@@ -5,6 +5,7 @@ import { Account, Client, Databases, ID, OAuthProvider, Query } from "react-nati
 
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
+const COLLECTION_ID2 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID2!;
 
 const router = useRouter();
 
@@ -113,17 +114,43 @@ export const loginWithGoogleService = async(): Promise<boolean> =>{
 
 }
 
-export const saveUserDetails = async(username: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
+export const saveUserDetails = async(userName: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
   try {
 
     // first check if user is already in the collection if yes then write code to update the fields
     // if not then write code to make new entry
+    const account = new Account(client);
+    const user = await account.get()
+    
+    const google_id = user.$id;
+  
 
     //query database collection and check if id from google exists in id field in collection
     //if yes then udate other fields with new values
-
     //if no then make a new document with these values and insert into the collection
 
+    const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
+      Query.equal("user_id",google_id)
+    ]);
+
+    const existingUser = result.documents[0];
+
+    if(result.documents.length > 0){
+      await databases.updateDocument(DATABASE_ID,COLLECTION_ID2,existingUser.$id,{
+        username: userName,
+        firstname: firstName,
+        lastname: lastName,
+        bio: bio
+      })
+    } else{
+      await databases.createDocument(DATABASE_ID,COLLECTION_ID2,ID.unique(),{
+        user_id: google_id,
+        username: userName,
+        firstname: firstName,
+        lastname: lastName,
+        bio: bio,
+      })
+    }
     return true
   } catch (error) {
     console.log("Error while Saving User Details: ",error)

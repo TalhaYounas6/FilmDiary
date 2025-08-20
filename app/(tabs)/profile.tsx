@@ -1,4 +1,4 @@
-import { client, loginWithGoogleService } from "@/services/appwrite";
+import { client, loginWithGoogleService, saveUserDetails } from "@/services/appwrite";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Account } from "react-native-appwrite";
@@ -9,7 +9,8 @@ const Profile = () => {
   const [firstName,setFirstName] = useState("");
   const [lastName,setLastName] = useState("");
   const [username,setUserName] = useState("");
-  const [bio,setBio] = useState("")
+  const [bio,setBio] = useState("");
+  const [saved,setSaved] = useState(false);
 
   const checkAuthStatus = async()=>{
       try {
@@ -53,9 +54,14 @@ const Profile = () => {
 
   const handleSaveButton = async()=>{
     try {
-      
+      setLoading(true);
+      const saveSuccess = await saveUserDetails(username,firstName,lastName,bio);
+      setSaved(saveSuccess)
     } catch (error) {
-      
+      console.log("Error while saving details: ",error);
+      setSaved(false);
+    }finally{
+      setLoading(false);
     }
   }
   
@@ -142,7 +148,7 @@ const Profile = () => {
       :(
         //logged out view
         <View className="flex justify-center items-center mt-20">
-          <TouchableOpacity onPress={handleGooglelogin} >
+          <TouchableOpacity onPress={handleGooglelogin}>
             <Text className="text-black font-semibold rounded-full px-5 py-5 bg-green-600">Log in with Google</Text>
           </TouchableOpacity>
         </View>
