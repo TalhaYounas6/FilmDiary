@@ -65,7 +65,7 @@ export const getTrendingMovies = async (): Promise<TrendingMovie[]> => {
 
 
 
-export const LoginWithGoogleService = async(): Promise<boolean> =>{
+export const loginWithGoogleService = async(): Promise<boolean> =>{
 
   try{
   const account = new Account(client);
@@ -111,4 +111,22 @@ export const LoginWithGoogleService = async(): Promise<boolean> =>{
   
 
 
+}
+
+export const saveUserDetails = async(username: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
+  try {
+
+    // first check if user is already in the collection if yes then write code to update the fields
+    // if not then write code to make new entry
+
+    //query database collection and check if id from google exists in id field in collection
+    //if yes then udate other fields with new values
+
+    //if no then make a new document with these values and insert into the collection
+
+    return true
+  } catch (error) {
+    console.log("Error while Saving User Details: ",error)
+    return false;
+  }
 }
