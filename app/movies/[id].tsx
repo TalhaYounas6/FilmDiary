@@ -1,4 +1,5 @@
 import { language } from "@/assets/languages";
+import { Heart } from "@/components/Heart";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
 import { useFetch } from "@/services/useFetch";
@@ -45,7 +46,10 @@ const MovieDetails = () => {
           />
         </View>
         <View className="flex-col items-start justify-center mt-5 px-5">
+          <View className="flex-row justify-between items-center flex-wrap">
           <Text className="text-white text-xl font-bold">{movie?.title}</Text>
+          <Heart/>
+          </View>
           <View className="flex-row items-center gap-x-1 mt-2">
             <Text className="text-light-200 text-sm">{movie?.release_date.split('-')[0]}</Text>
             <Text className="text-sm text-light-200">{movie?.runtime}m</Text>
