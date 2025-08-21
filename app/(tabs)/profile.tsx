@@ -2,6 +2,8 @@ import { client, loginWithGoogleService, saveUserDetails } from "@/services/appw
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Account } from "react-native-appwrite";
+
+
 const Profile = () => {
 
   const [loading,setLoading] = useState(false);

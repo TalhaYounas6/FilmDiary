@@ -1,24 +1,27 @@
-import { View, Text,TouchableOpacity} from 'react-native'
+import { View, Text,TouchableOpacity,ActivityIndicator} from 'react-native'
 import React,{useState} from 'react'
 import {AntDesign} from "@expo/vector-icons"
 
-export const Heart = () => {
-    const [isliked,setisLiked] = useState(false);
+interface HeartProps {
+    isLiked : boolean,
+    toggleLike : ()=>void,
+    isLoading?: boolean
+}
 
-    const toggleLike = ()=>{
-        setisLiked(!isliked);
-    }
+
+export const Heart = ({isLiked,toggleLike,isLoading=false}: HeartProps) => {
+    
 
   return (
-    <TouchableOpacity onPress={toggleLike}>
+    <TouchableOpacity onPress={toggleLike} disabled={isLoading}>
         <AntDesign 
-        name={isliked?"heart":'hearto'}
+        name={isLiked?"heart":'hearto'}
         size={30}
-        color={isliked?"red":"gray"}
+        color={isLiked?"red":"gray"}
         className='p-5'
         />
+        {isLoading && <ActivityIndicator />}
     </TouchableOpacity>
   )
 }
 
-export default Heart

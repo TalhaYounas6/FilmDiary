@@ -6,6 +6,7 @@ import { Account, Client, Databases, ID, OAuthProvider, Query } from "react-nati
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
 const COLLECTION_ID2 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID2!;
+const COLLECTION_ID3 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID3!;
 
 const router = useRouter();
 
@@ -154,6 +155,73 @@ export const saveUserDetails = async(userName: string,firstName: string,lastName
     return true
   } catch (error) {
     console.log("Error while Saving User Details: ",error)
+    return false;
+  }
+}
+
+export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
+  try {
+
+    const account = new Account(client);
+    const user = await account.get()
+    const google_id = user.$id;
+
+    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+
+    const genres = movie?.genres.map((genre)=>genre.name)
+    const release_date = movie.release_date.split('-')[0]
+      //add document to saved collection
+    const result = await databases.createDocument(DATABASE_ID,COLLECTION_ID3,document_id,{
+        user_id: google_id,
+        movie_id: movie.id,
+        movie_name: movie.title,
+        movie_genre: genres,
+        movie_releaseDate : release_date
+    })
+    return true;
+  } catch (error) {
+      console.log("Error while adding to saved movies: ",error);
+      return false
+  }
+}
+
+export const removeFromSavedMovies = async(movie:MovieDetails): Promise<boolean>=>{
+ 
+    try {
+      
+    const account = new Account(client);
+    const user = await account.get()
+    const google_id = user.$id;
+
+    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+
+    //remove document from saved collection
+    await databases.deleteDocument(DATABASE_ID,COLLECTION_ID3,document_id)
+    return true;
+
+    
+
+    } catch (error) {
+      console.log("Error while removing saved movies: ",error);
+      return false
+    }
+
+}
+
+export const checkLikedStatus = async(movie:MovieDetails):Promise<boolean>=>{
+  try {
+    const account = new Account(client);
+    const user = await account.get()
+    const google_id = user.$id;
+
+    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+    
+    await databases.getDocument(DATABASE_ID, COLLECTION_ID3, document_id);
+
+    return true;
+
+  } catch (error) {
+    console.log("Error checking like status: ",error);
     return false;
   }
 }

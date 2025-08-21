@@ -2,10 +2,14 @@ import { language } from "@/assets/languages";
 import { Heart } from "@/components/Heart";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
+import { addToSavedMovies, client, removeFromSavedMovies,checkLikedStatus } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Account } from "react-native-appwrite";
+
+
 
 interface MovieProps {
   label: string,
@@ -19,19 +23,94 @@ const MovieItem = ({label,content}:MovieProps) =>(
   </View>
 )
 
+
 const MovieDetails = () => {
+
+  const [isLoggedIn,setLoggedin] = useState(false);
+  const [loadingState,setLoading] = useState(false);
+  const [isLiked,setIsLiked] = useState(false);
+  const [likeOperationLoading, setLikeOperationLoading] = useState(false)
+
   const {id} = useLocalSearchParams();
-  const {data:movie,loading} = useFetch(()=>fetchMovieDetails(id as string))
+  const {data:movie,loading} = useFetch(()=>fetchMovieDetails(id as string));
   
-           
-            let code = movie?.original_language;
-            let lang;
+  useEffect(()=>{
+    const checkAuthStatus = async()=>{
+    try {
+      setLoading(true);
+      const account = new Account(client);
+      const user = await account.get();
+      setLoggedin(!!user?.$id)
+    } catch (error) {
+      console.log("Error: ",error);
+      setLoggedin(false);
+    }finally{
+      setLoading(false);
+    }
+  }
+    checkAuthStatus();
+  },[id])
+
+  useEffect(()=>{
+
+    const checkingLikeStatus = async()=>{
+    try {
+      setLoading(true);
+      if(movie){
+      const status = await checkLikedStatus(movie);
+      setIsLiked(status);
+      }
+    } catch (error) {
+      console.log("Error checking like status ", error);
+    }finally{
+      setLoading(false);
+    }
+  }   
+  if(isLoggedIn){
+    checkingLikeStatus();
+  }else{
+    setIsLiked(false);
+  }
+  },[id,isLoggedIn,movie])
+      
+  
+  
+  const handleLikeToggle = async()=>{
+
+    const prevLikeState = isLiked;
+    setIsLiked(!isLiked);
+    setLikeOperationLoading(true);
+
+    try {
+      if(movie){
+      if(!prevLikeState){
+        //if it wasn't liked before, liking it now
+        const success = await addToSavedMovies(movie);
+        if(!success) throw new Error("Failed to add movie to favourites");
+      }else{
+        //if liked before, now unliking it
+        const success = await removeFromSavedMovies(movie);
+        if(!success) throw new Error("Failed to remove movie from favourites")
+      }
+      }
+    } catch (error) {
+      console.log("Like operation failed: ",error);
+      setIsLiked(prevLikeState);
+    }finally{
+      setLikeOperationLoading(false);
+    }
+
+  }
+
+
+  let code = movie?.original_language;
+  let lang;
             
-            for(const key in language){
-                  if(code == key ){
-	                lang = language[key as keyof typeof language];
-                  }
-            }
+  for(const key in language){
+      if(code == key ){
+	      lang = language[key as keyof typeof language];
+      }
+    }
           
   return (
     <View className="bg-primary flex-1">
@@ -48,7 +127,7 @@ const MovieDetails = () => {
         <View className="flex-col items-start justify-center mt-5 px-5">
           <View className="flex-row justify-between items-center flex-wrap">
           <Text className="text-white text-xl font-bold">{movie?.title}</Text>
-          <Heart/>
+          {loadingState ? null : isLoggedIn && <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} />}
           </View>
           <View className="flex-row items-center gap-x-1 mt-2">
             <Text className="text-light-200 text-sm">{movie?.release_date.split('-')[0]}</Text>
