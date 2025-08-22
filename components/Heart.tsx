@@ -22,7 +22,7 @@ export const Heart = ({isLiked,toggleLike,isLoading=false,isNotLoggedIn}: HeartP
         className='p-5'
         />
         <View>
-        {isLoading && <ActivityIndicator />}
+        {isLoading && <ActivityIndicator className="mt-2"/>}
         </View>
     </TouchableOpacity>
   )

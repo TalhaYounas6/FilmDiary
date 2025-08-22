@@ -128,7 +128,9 @@ const MovieDetails = () => {
           <View className="flex-row justify-between items-center flex-wrap">
           <Text className="text-white text-xl font-bold">{movie?.title}</Text>
           <View style={{width:50,height:50}}>
-            {loadingState ? null : <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} isNotLoggedIn={!isLoggedIn}/>}
+            {/* {loadingState ? null : <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} isNotLoggedIn={!isLoggedIn}/>} */}
+          <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} isNotLoggedIn={!isLoggedIn}/>
+          
           </View>
           </View>
           <View className="flex-row items-center gap-x-2 mt-2">
