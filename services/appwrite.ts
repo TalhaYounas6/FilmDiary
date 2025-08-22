@@ -166,7 +166,7 @@ export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
     const user = await account.get()
     const google_id = user.$id;
 
-    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+    const document_id = `${google_id}_${movie.id}`.slice(0,36);
 
     const genres = movie?.genres.map((genre)=>genre.name)
     const release_date = movie.release_date.split('-')[0]
@@ -180,7 +180,7 @@ export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
     })
     return true;
   } catch (error) {
-      console.log("Error while adding to saved movies: ",error);
+      console.log("Error while adding to saved movies (appwrite file): ",error);
       return false
   }
 }
@@ -193,7 +193,7 @@ export const removeFromSavedMovies = async(movie:MovieDetails): Promise<boolean>
     const user = await account.get()
     const google_id = user.$id;
 
-    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+    const document_id = `${google_id}_${movie.id}`.slice(0,36);
 
     //remove document from saved collection
     await databases.deleteDocument(DATABASE_ID,COLLECTION_ID3,document_id)
@@ -202,7 +202,7 @@ export const removeFromSavedMovies = async(movie:MovieDetails): Promise<boolean>
     
 
     } catch (error) {
-      console.log("Error while removing saved movies: ",error);
+      console.log("Error while removing saved movies (appwrite file): ",error);
       return false
     }
 
@@ -214,14 +214,52 @@ export const checkLikedStatus = async(movie:MovieDetails):Promise<boolean>=>{
     const user = await account.get()
     const google_id = user.$id;
 
-    const document_id = `user_${google_id}_movie_id_${movie.id}`;
+    const document_id = `${google_id}_${movie.id}`.slice(0,36);
     
     await databases.getDocument(DATABASE_ID, COLLECTION_ID3, document_id);
 
+    
     return true;
-
-  } catch (error) {
-    console.log("Error checking like status: ",error);
+   
+  } catch (error : any) {
+    if(error.code === 404){
+      console.log("Movie is not in saved");
+      return false;
+    }
+    console.log("Error checking like status(appwrite file): ",error);
     return false;
+  }
+}
+
+interface Userdetails {
+  username : string,
+  firstName : string,
+  lastName : string,
+  bio : string
+}
+
+export const getUserDetails = async(userId:string) : Promise<Userdetails> => {
+  try {
+
+    const account = new Account(client);
+    const user = await account.get()
+    const google_id = user.$id;
+
+    //get user details from the collection and return
+    const result  = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
+      Query.equal("user_id",google_id)
+    ])
+
+    const username = result.documents[0].username;
+    const firstName = result.documents[0].firstname;
+    const lastName = result.documents[0].lastname;
+    const bio = result.documents[0].bio;
+  
+    return { username,firstName,lastName,bio};
+
+    
+  } catch (error) {
+    console.log("Error fetching user details (appwrite file):",error);
+    throw new Error("Error while fetching user details");
   }
 }

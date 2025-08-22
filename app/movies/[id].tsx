@@ -2,7 +2,7 @@ import { language } from "@/assets/languages";
 import { Heart } from "@/components/Heart";
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
-import { addToSavedMovies, client, removeFromSavedMovies,checkLikedStatus } from "@/services/appwrite";
+import { addToSavedMovies, checkLikedStatus, client, removeFromSavedMovies } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -94,7 +94,7 @@ const MovieDetails = () => {
       }
       }
     } catch (error) {
-      console.log("Like operation failed: ",error);
+      console.log("Like operation failed (movie details file): ",error);
       setIsLiked(prevLikeState);
     }finally{
       setLikeOperationLoading(false);
@@ -127,9 +127,11 @@ const MovieDetails = () => {
         <View className="flex-col items-start justify-center mt-5 px-5">
           <View className="flex-row justify-between items-center flex-wrap">
           <Text className="text-white text-xl font-bold">{movie?.title}</Text>
-          {loadingState ? null : isLoggedIn && <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} />}
+          
+            {loadingState ? null : isLoggedIn && <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} />}
+          
           </View>
-          <View className="flex-row items-center gap-x-1 mt-2">
+          <View className="flex-row items-center gap-x-2 mt-2">
             <Text className="text-light-200 text-sm">{movie?.release_date.split('-')[0]}</Text>
             <Text className="text-sm text-light-200">{movie?.runtime}m</Text>
           </View>

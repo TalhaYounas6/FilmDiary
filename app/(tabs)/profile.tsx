@@ -1,7 +1,8 @@
-import { client, loginWithGoogleService, saveUserDetails } from "@/services/appwrite";
+import { client, getUserDetails, loginWithGoogleService, saveUserDetails } from "@/services/appwrite";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Account } from "react-native-appwrite";
+
 
 
 const Profile = () => {
@@ -14,19 +15,19 @@ const Profile = () => {
   const [bio,setBio] = useState("");
   const [saved,setSaved] = useState(false);
 
-  const checkAuthStatus = async()=>{
-      try {
-        setLoading(true);
-        const account = new Account(client);
-        const user = await account.get();
-        setLoggedin(!!user?.$id)
-      } catch (error) {
-        console.log("Error: ",error);
-        setLoggedin(false);
-      }finally{
-        setLoading(false);
-      }
-    }
+  // const checkAuthStatus = async()=>{
+  //     try {
+  //       setLoading(true);
+  //       const account = new Account(client);
+  //       const user = await account.get();
+  //       setLoggedin(!!user?.$id)
+  //     } catch (error) {
+  //       console.log("Error: ",error);
+  //       setLoggedin(false);
+  //     }finally{
+  //       setLoading(false);
+  //     }
+  //   }
 
   const handleGooglelogin =  async()=>{
     try {
@@ -70,7 +71,45 @@ const Profile = () => {
   
 
   useEffect(()=>{
+
+    const checkAuthStatus = async()=>{
+      try {
+        setLoading(true);
+        const account = new Account(client);
+        const user = await account.get();
+        setLoggedin(!!user?.$id)
+      } catch (error) {
+        console.log("Error: ",error);
+        setLoggedin(false);
+      }finally{
+        setLoading(false);
+      }
+    }
     checkAuthStatus();
+  },[])
+
+  useEffect(()=>{
+
+    const fillUserDetails = async()=>{
+      try {
+        setLoading(true);
+        const account = new Account(client);
+        const user = await account.get();
+        if(user){
+          const {username,firstName,lastName,bio}= await getUserDetails(user.$id);
+          setUserName(username);
+          setFirstName(firstName);
+          setLastName(lastName);
+          setBio(bio);
+        }
+      } catch (error) {
+        console.log("Error while filling user details",error)
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    fillUserDetails();
   },[])
 
   if (loading){
