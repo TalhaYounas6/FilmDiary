@@ -1,26 +1,29 @@
-import { View, Text,TouchableOpacity,ActivityIndicator} from 'react-native'
-import React,{useState} from 'react'
-import {AntDesign} from "@expo/vector-icons"
+import { AntDesign } from "@expo/vector-icons"
+import React from 'react'
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native'
 
 interface HeartProps {
     isLiked : boolean,
     toggleLike : ()=>void,
-    isLoading?: boolean
+    isLoading: boolean,
+    isNotLoggedIn: boolean
 }
 
 
-export const Heart = ({isLiked,toggleLike,isLoading=false}: HeartProps) => {
+export const Heart = ({isLiked,toggleLike,isLoading=false,isNotLoggedIn}: HeartProps) => {
     
 
   return (
-    <TouchableOpacity onPress={toggleLike} disabled={isLoading}>
+    <TouchableOpacity onPress={toggleLike} disabled={isLoading || isNotLoggedIn} className='flex flex-row items-center'>
         <AntDesign 
         name={isLiked?"heart":'hearto'}
         size={30}
         color={isLiked?"red":"gray"}
         className='p-5'
         />
+        <View>
         {isLoading && <ActivityIndicator />}
+        </View>
     </TouchableOpacity>
   )
 }

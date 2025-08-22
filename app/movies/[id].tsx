@@ -27,7 +27,7 @@ const MovieItem = ({label,content}:MovieProps) =>(
 const MovieDetails = () => {
 
   const [isLoggedIn,setLoggedin] = useState(false);
-  const [loadingState,setLoading] = useState(false);
+  const [loadingState,setLoadingState] = useState(false);
   const [isLiked,setIsLiked] = useState(false);
   const [likeOperationLoading, setLikeOperationLoading] = useState(false)
 
@@ -37,7 +37,7 @@ const MovieDetails = () => {
   useEffect(()=>{
     const checkAuthStatus = async()=>{
     try {
-      setLoading(true);
+      setLoadingState(true);
       const account = new Account(client);
       const user = await account.get();
       setLoggedin(!!user?.$id)
@@ -45,7 +45,7 @@ const MovieDetails = () => {
       console.log("Error: ",error);
       setLoggedin(false);
     }finally{
-      setLoading(false);
+      setLoadingState(false);
     }
   }
     checkAuthStatus();
@@ -55,7 +55,7 @@ const MovieDetails = () => {
 
     const checkingLikeStatus = async()=>{
     try {
-      setLoading(true);
+      setLoadingState(true);
       if(movie){
       const status = await checkLikedStatus(movie);
       setIsLiked(status);
@@ -63,7 +63,7 @@ const MovieDetails = () => {
     } catch (error) {
       console.log("Error checking like status ", error);
     }finally{
-      setLoading(false);
+      setLoadingState(false);
     }
   }   
   if(isLoggedIn){
@@ -127,9 +127,9 @@ const MovieDetails = () => {
         <View className="flex-col items-start justify-center mt-5 px-5">
           <View className="flex-row justify-between items-center flex-wrap">
           <Text className="text-white text-xl font-bold">{movie?.title}</Text>
-          
-            {loadingState ? null : isLoggedIn && <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} />}
-          
+          <View style={{width:50,height:50}}>
+            {loadingState ? null : <Heart toggleLike={handleLikeToggle} isLiked={isLiked} isLoading={likeOperationLoading} isNotLoggedIn={!isLoggedIn}/>}
+          </View>
           </View>
           <View className="flex-row items-center gap-x-2 mt-2">
             <Text className="text-light-200 text-sm">{movie?.release_date.split('-')[0]}</Text>
