@@ -16,8 +16,15 @@ export const client = new Client()
 
 const databases = new Databases(client);
 
-//track user searches
+export const getCurrentUser = async() : Promise<User>=>{
+  const account = new Account(client);
+  const user = await account.get();
+  return user as unknown as User;
+}
 
+
+
+//track user searches
 export const updateSearchCount = async (query: string, movie: Movie) => {
   // check if there is a document for a movie and if there is it will increment it
 
@@ -176,7 +183,9 @@ export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
         movie_id: movie.id,
         movie_name: movie.title,
         movie_genre: genres,
-        movie_releaseDate : release_date
+        movie_releaseDate : release_date,
+        poster_path : movie.poster_path,
+        
     })
     return true;
   } catch (error) {
@@ -232,34 +241,66 @@ export const checkLikedStatus = async(movie:MovieDetails):Promise<boolean>=>{
 }
 
 interface Userdetails {
-  username : string,
-  firstName : string,
-  lastName : string,
-  bio : string
+  user_name : string,
+  first_Name : string,
+  last_Name : string,
+  bio_ : string
 }
 
-export const getUserDetails = async(userId:string) : Promise<Userdetails> => {
+export const getUserDetails = async(google_id:string) : Promise<Userdetails> => {
   try {
-
-    const account = new Account(client);
-    const user = await account.get()
-    const google_id = user.$id;
 
     //get user details from the collection and return
     const result  = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
       Query.equal("user_id",google_id)
     ])
 
-    const username = result.documents[0].username;
-    const firstName = result.documents[0].firstname;
-    const lastName = result.documents[0].lastname;
-    const bio = result.documents[0].bio;
+    
+    if (result.documents.length === 0) {
+      return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
+      
+    }
+
+    const user_name = result.documents[0].username;
+    const first_Name = result.documents[0].firstname;
+    const last_Name = result.documents[0].lastname;
+    const bio_ = result.documents[0].bio;
   
-    return { username,firstName,lastName,bio};
+    return { user_name,first_Name,last_Name,bio_};
 
     
   } catch (error) {
     console.log("Error fetching user details (appwrite file):",error);
     throw new Error("Error while fetching user details");
   }
+}
+
+
+export const getSavedMovies = async(google_id:string) : Promise<FavouriteMovie[]> =>{
+  try {
+    const account = new Account(client);
+    const user = await account.get()
+    const google_id = user.$id;
+
+    const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID3,[
+      Query.equal("user_id",google_id)
+    ])
+
+    if(result.documents.length!=0){
+      const movies = result.documents.map((item)=>({
+        id : item.movie_id,
+        title: item.movie_name,
+        release_date: item.movie_releaseDate,
+        poster_path: item.poster_path,
+      }
+      ))
+
+     return movies as unknown as FavouriteMovie[]
+    }
+
+   return undefined as unknown as FavouriteMovie[];
+} catch (error) {
+   console.log(error);
+   return undefined as unknown as FavouriteMovie[]
+}
 }

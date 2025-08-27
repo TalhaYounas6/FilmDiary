@@ -15,6 +15,26 @@ interface Movie {
   vote_count: number;
 }
 
+interface FavouriteMovie {
+  id: number;
+  title: string;
+  poster_path: string;
+  release_date: string;
+}
+
+interface User {
+  $id: string;
+  name: string;
+  registration: number; // Unix timestamp
+  status: boolean;
+  passwordUpdate: number; // Unix timestamp
+  email: string;
+  phone: string;
+  emailVerification: boolean;
+  phoneVerification: boolean;
+  prefs: Record<string, any>; // User preferences object
+}
+
 interface TrendingMovie {
   searchTerm: string;
   movie_id: number;

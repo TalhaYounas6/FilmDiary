@@ -1,6 +1,6 @@
 import { client, getUserDetails, loginWithGoogleService, saveUserDetails } from "@/services/appwrite";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { Account } from "react-native-appwrite";
 
 
@@ -14,6 +14,13 @@ const Profile = () => {
   const [username,setUserName] = useState("");
   const [bio,setBio] = useState("");
   const [saved,setSaved] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // const {user,loading: gettingUserLoading,error:userError} = useAccount();
+  
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   // const checkAuthStatus = async()=>{
   //     try {
@@ -39,6 +46,7 @@ const Profile = () => {
       setLoggedin(false)
     }finally{
       setLoading(false)
+      handleRefresh();
     }
   }
 
@@ -65,6 +73,7 @@ const Profile = () => {
       setSaved(false);
     }finally{
       setLoading(false);
+      // handleRefresh();
     }
   }
   
@@ -88,19 +97,21 @@ const Profile = () => {
     checkAuthStatus();
   },[])
 
+  
+
   useEffect(()=>{
 
     const fillUserDetails = async()=>{
       try {
         setLoading(true);
         const account = new Account(client);
-        const user = await account.get();
+        let user = await account.get();
         if(user){
-          const {username,firstName,lastName,bio}= await getUserDetails(user.$id);
-          setUserName(username);
-          setFirstName(firstName);
-          setLastName(lastName);
-          setBio(bio);
+          const {user_name,first_Name,last_Name,bio_} = await getUserDetails(user.$id);
+          setUserName(user_name);
+          setFirstName(first_Name);
+          setLastName(last_Name);
+          setBio(bio_);
         }
       } catch (error) {
         console.log("Error while filling user details",error)
@@ -108,13 +119,14 @@ const Profile = () => {
         setLoading(false);
       }
     }
-
+    
     fillUserDetails();
-  },[])
+    
+  },[refreshTrigger])
 
   if (loading){
     return(
-      <View className="bg-primary px-10 flex-1">
+      <View className="bg-primary px-10 flex-1 justify-center">
           <ActivityIndicator size='large' />
       </View>
     )
@@ -122,9 +134,11 @@ const Profile = () => {
 
 
   return (
+  <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
     <View className="bg-primary px-10 flex-1">
       {isloggedIn ? (
         //logged in view - Profile/Edit form
+      
         <View className="bg-purple-950 rounded-2xl p-6 shadow-lg mt-20">
           <Text className="text-2xl font-bold text-center mb-6 text-white">Edit Profile</Text>
           
@@ -185,6 +199,7 @@ const Profile = () => {
             </TouchableOpacity>
           </View>
         </View>
+       
       ) 
       :(
         //logged out view
@@ -195,6 +210,7 @@ const Profile = () => {
         </View>
       )}
     </View>
+    </TouchableWithoutFeedback> 
   );
 };
 
