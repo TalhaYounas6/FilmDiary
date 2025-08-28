@@ -32,7 +32,7 @@ const MovieDetails = () => {
   const [likeOperationLoading, setLikeOperationLoading] = useState(false)
 
   const {id} = useLocalSearchParams();
-  const {data:movie,loading} = useFetch(()=>fetchMovieDetails(id as string));
+  const {data:movie,loading:movieDetailsLoading} = useFetch(()=>fetchMovieDetails(id as string));
   
   useEffect(()=>{
     const checkAuthStatus = async()=>{
@@ -118,11 +118,16 @@ const MovieDetails = () => {
         paddingBottom:80
       }}>
         <View>
-          <Image 
+          {!movieDetailsLoading? (<Image 
           className="w-full h-[550px]"
           resizeMode="stretch"
           source={{uri: `https://image.tmdb.org/t/p/w500/${movie?.poster_path}`}}
-          />
+          />):(
+          <View className="w-full h-[550px] bg-black overflow-hidden flex justify-center items-center">
+            <Text className="text-gray-400">Loading...</Text>
+          </View>
+          )}
+    
         </View>
         <View className="flex-col items-start justify-center mt-5 px-5">
           <View className="flex-row justify-between items-center flex-wrap">

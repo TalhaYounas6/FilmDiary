@@ -22,6 +22,13 @@ interface FavouriteMovie {
   release_date: string;
 }
 
+interface Userdetails {
+  user_name : string,
+  first_Name : string,
+  last_Name : string,
+  bio_ : string
+}
+
 interface User {
   $id: string;
   name: string;

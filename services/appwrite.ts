@@ -16,13 +16,34 @@ export const client = new Client()
 
 const databases = new Databases(client);
 
-export const getCurrentUser = async() : Promise<User>=>{
-  const account = new Account(client);
-  const user = await account.get();
-  return user as unknown as User;
-}
+// export const getCurrentUser = async() : Promise<User>=>{
+//   const account = new Account(client);
+//   const user = await account.get();
+//   return user as unknown as User;
+// }
 
-
+export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const account = new Account(client);
+    
+    
+    try {
+      await account.getSession('current');
+    } catch (sessionError) {
+      console.log('No valid session found');
+      return null;
+    }
+    
+   
+    const user = await account.get();
+    
+    return user as unknown as User;
+    
+  } catch (error) {
+    console.error('Error in getCurrentUser:', error);
+    throw error; 
+  }
+};
 
 //track user searches
 export const updateSearchCount = async (query: string, movie: Movie) => {
@@ -122,49 +143,104 @@ export const loginWithGoogleService = async(): Promise<boolean> =>{
 
 }
 
-export const saveUserDetails = async(userName: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
-  try {
+// export const saveUserDetails = async(userName: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
+//   try {
 
-    // first check if user is already in the collection if yes then write code to update the fields
-    // if not then write code to make new entry
-    const account = new Account(client);
-    const user = await account.get()
+//     // first check if user is already in the collection if yes then write code to update the fields
+//     // if not then write code to make new entry
+//     const account = new Account(client);
+//     const user = await account.get()
     
-    const google_id = user.$id;
+//     const google_id = user.$id;
   
 
-    //query database collection and check if id from google exists in id field in collection
-    //if yes then udate other fields with new values
-    //if no then make a new document with these values and insert into the collection
+//     //query database collection and check if id from google exists in id field in collection
+//     //if yes then udate other fields with new values
+//     //if no then make a new document with these values and insert into the collection
 
-    const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
-      Query.equal("user_id",google_id)
-    ]);
+//     const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
+//       Query.equal("user_id",google_id)
+//     ]);
 
-    const existingUser = result.documents[0];
+//     const existingUser = result.documents[0];
 
-    if(result.documents.length > 0){
-      await databases.updateDocument(DATABASE_ID,COLLECTION_ID2,existingUser.$id,{
-        username: userName,
-        firstname: firstName,
-        lastname: lastName,
-        bio: bio
-      })
-    } else{
-      await databases.createDocument(DATABASE_ID,COLLECTION_ID2,ID.unique(),{
-        user_id: google_id,
-        username: userName,
-        firstname: firstName,
-        lastname: lastName,
-        bio: bio,
-      })
+//     if(result.documents.length > 0){
+//       await databases.updateDocument(DATABASE_ID,COLLECTION_ID2,existingUser.$id,{
+//         username: userName,
+//         firstname: firstName,
+//         lastname: lastName,
+//         bio: bio
+//       })
+//     } else{
+//       await databases.createDocument(DATABASE_ID,COLLECTION_ID2,ID.unique(),{
+//         user_id: google_id,
+//         username: userName,
+//         firstname: firstName,
+//         lastname: lastName,
+//         bio: bio,
+//       })
+//     }
+//     return true
+//   } catch (error) {
+//     console.log("Error while Saving User Details: ",error)
+//     return false;
+//   }
+// }
+
+export const saveUserDetails = async (
+  userName: string,
+  firstName: string,
+  lastName: string,
+  bio: string
+): Promise<boolean> => {
+  try {
+    const account = new Account(client);
+    const user = await account.get();
+    const google_id = user.$id;
+
+    try {
+
+      await databases.getDocument(DATABASE_ID, COLLECTION_ID2, google_id);
+      
+     
+      await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_ID2,
+        google_id,
+        {
+          username: userName,
+          firstname: firstName,
+          lastname: lastName,
+          bio: bio
+        }
+      );
+    } catch (error:any) {
+      
+      if (error.code === 404) {
+        await databases.createDocument(
+          DATABASE_ID,
+          COLLECTION_ID2,
+          google_id,
+          {
+            user_id: google_id,
+            username: userName,
+            firstname: firstName,
+            lastname: lastName,
+            bio: bio,
+          }
+        );
+      } else {
+        
+        throw error;
+      }
     }
-    return true
+
+    return true;
   } catch (error) {
-    console.log("Error while Saving User Details: ",error)
+    console.log("Error while Saving User Details: ", error);
     return false;
   }
-}
+};
 
 export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
   try {
@@ -240,38 +316,62 @@ export const checkLikedStatus = async(movie:MovieDetails):Promise<boolean>=>{
   }
 }
 
-interface Userdetails {
-  user_name : string,
-  first_Name : string,
-  last_Name : string,
-  bio_ : string
-}
 
-export const getUserDetails = async(google_id:string) : Promise<Userdetails> => {
-  try {
 
-    //get user details from the collection and return
-    const result  = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
-      Query.equal("user_id",google_id)
-    ])
+// export const getUserDetails = async(google_id:string) : Promise<Userdetails> => {
+//   try {
+
+//     //get user details from the collection and return
+//     const result  = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
+//       Query.equal("user_id",google_id)
+//     ])
 
     
-    if (result.documents.length === 0) {
-      return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
+//     if (result.documents.length === 0) {
+//       return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
       
-    }
+//     }
 
-    const user_name = result.documents[0].username;
-    const first_Name = result.documents[0].firstname;
-    const last_Name = result.documents[0].lastname;
-    const bio_ = result.documents[0].bio;
+//     const user_name = result.documents[0].username;
+//     const first_Name = result.documents[0].firstname;
+//     const last_Name = result.documents[0].lastname;
+//     const bio_ = result.documents[0].bio;
   
-    return { user_name,first_Name,last_Name,bio_};
+//     return { user_name,first_Name,last_Name,bio_};
 
     
-  } catch (error) {
-    console.log("Error fetching user details (appwrite file):",error);
-    throw new Error("Error while fetching user details");
+//   } catch (error) {
+//     console.log("Error fetching user details (appwrite file):",error);
+//     throw new Error("Error while fetching user details");
+//   }
+// }
+
+
+
+
+export const getUserDetails = async (google_id: string): Promise<Userdetails> => {
+  try {
+    
+    const result = await databases.getDocument(DATABASE_ID, COLLECTION_ID2, google_id);
+    
+    
+    return {
+      user_name: result.username,
+      first_Name: result.firstname,
+      last_Name: result.lastname,
+      bio_: result.bio
+    };
+    
+  } catch (error: any) {
+   
+    if (error.code === 404) {
+      
+      return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
+    } else {
+      
+      console.log("Error fetching user details (appwrite file):", error);
+      throw new Error("Error while fetching user details");
+    }
   }
 }
 

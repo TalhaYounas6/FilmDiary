@@ -20,7 +20,7 @@ const Saved = () => {
         setLoading(true);
         const userData = await getCurrentUser();
         setUser(userData);
-        setLoggedin(!!userData.$id)
+        setLoggedin(!!userData?.$id)
 
         if(userData?.$id){
           const movies = await getSavedMovies(userData.$id);
