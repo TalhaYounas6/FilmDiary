@@ -74,7 +74,7 @@ export default function Index() {
               <>
                 <Image
                   source={icons.logo}
-                  className="w-15 h-12 mt-20 mb-5 mx-auto"
+                  className="w-15 h-12 mt-20 mb-5 self-center"
                   resizeMode="contain"
                 />
                 <TouchableOpacity className="w-[30%] mx-auto">

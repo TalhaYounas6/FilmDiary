@@ -89,7 +89,7 @@ export default function Profile() {
     );
   }
 
-  // 3. Handle Save Changes
+
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);

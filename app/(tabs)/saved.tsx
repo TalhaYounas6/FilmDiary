@@ -45,7 +45,7 @@ const Saved = () => {
     );
   }
 
-  if (!savedMovies) {
+  if (!loading && savedMovies?.length == 0) {
     return (
       <View className="flex-1 bg-primary px-10 justify-center items-center">
         <Text className="text-white font-bold text-xl text-center">
@@ -80,7 +80,7 @@ const Saved = () => {
               <>
                 <Image
                   source={icons.logo}
-                  className="w-15 h-12 mt-20 mb-5 mx-auto"
+                  className="w-15 h-12 mt-20 mb-5 self-center"
                   resizeMode="contain"
                 />
                 <Text className="text-lg text-white font-bold mt-5 mb-3 ml-2">

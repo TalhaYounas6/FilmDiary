@@ -43,8 +43,6 @@ export default function SignIn() {
     try {
       await login({ email, password });
 
-      // No need to redirect manually here;
-      // The session state change will trigger the Redirect below automatically.
     } catch (error: any) {
       Alert.alert("Login Failed", error.message);
     }
