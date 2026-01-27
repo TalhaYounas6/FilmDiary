@@ -3,10 +3,10 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import { Account, Client, Databases, ID, OAuthProvider, Query } from "react-native-appwrite";
 
-const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
-const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
-const COLLECTION_ID2 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID2!;
-const COLLECTION_ID3 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID3!;
+export const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
+export const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
+export const COLLECTION_ID2 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID2!;
+export const COLLECTION_ID3 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID3!;
 
 const router = useRouter();
 
@@ -14,36 +14,9 @@ export const client = new Client()
   .setEndpoint("https://nyc.cloud.appwrite.io/v1")
   .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!);
 
-const databases = new Databases(client);
+export const databases = new Databases(client);
 
-// export const getCurrentUser = async() : Promise<User>=>{
-//   const account = new Account(client);
-//   const user = await account.get();
-//   return user as unknown as User;
-// }
-
-export const getCurrentUser = async (): Promise<User | null> => {
-  try {
-    const account = new Account(client);
-    
-    
-    try {
-      await account.getSession('current');
-    } catch (sessionError) {
-      console.log('No valid session found');
-      return null;
-    }
-    
-   
-    const user = await account.get();
-    
-    return user as unknown as User;
-    
-  } catch (error) {
-    console.error('Error in getCurrentUser:', error);
-    throw error; 
-  }
-};
+export const account = new Account(client);
 
 //track user searches
 export const updateSearchCount = async (query: string, movie: Movie) => {
@@ -94,7 +67,6 @@ export const getTrendingMovies = async (): Promise<TrendingMovie[]> => {
 };
 
 
-
 export const loginWithGoogleService = async(): Promise<boolean> =>{
 
   try{
@@ -138,100 +110,46 @@ export const loginWithGoogleService = async(): Promise<boolean> =>{
     // Redirect as needed
     router.push('/(tabs)/profile');
   }
-  
-
-
 }
 
-// export const saveUserDetails = async(userName: string,firstName: string,lastName: string,bio: string):Promise<boolean>=>{
-//   try {
-
-//     // first check if user is already in the collection if yes then write code to update the fields
-//     // if not then write code to make new entry
-//     const account = new Account(client);
-//     const user = await account.get()
-    
-//     const google_id = user.$id;
-  
-
-//     //query database collection and check if id from google exists in id field in collection
-//     //if yes then udate other fields with new values
-//     //if no then make a new document with these values and insert into the collection
-
-//     const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
-//       Query.equal("user_id",google_id)
-//     ]);
-
-//     const existingUser = result.documents[0];
-
-//     if(result.documents.length > 0){
-//       await databases.updateDocument(DATABASE_ID,COLLECTION_ID2,existingUser.$id,{
-//         username: userName,
-//         firstname: firstName,
-//         lastname: lastName,
-//         bio: bio
-//       })
-//     } else{
-//       await databases.createDocument(DATABASE_ID,COLLECTION_ID2,ID.unique(),{
-//         user_id: google_id,
-//         username: userName,
-//         firstname: firstName,
-//         lastname: lastName,
-//         bio: bio,
-//       })
-//     }
-//     return true
-//   } catch (error) {
-//     console.log("Error while Saving User Details: ",error)
-//     return false;
-//   }
-// }
-
 export const saveUserDetails = async (
+  userId: string, 
   userName: string,
   firstName: string,
   lastName: string,
   bio: string
 ): Promise<boolean> => {
   try {
-    const account = new Account(client);
-    const user = await account.get();
-    const google_id = user.$id;
+    const data = {
+      username: userName,
+      firstname: firstName,
+      lastname: lastName,
+      bio: bio
+    };
 
+    
     try {
-
-      await databases.getDocument(DATABASE_ID, COLLECTION_ID2, google_id);
-      
-     
       await databases.updateDocument(
         DATABASE_ID,
         COLLECTION_ID2,
-        google_id,
-        {
-          username: userName,
-          firstname: firstName,
-          lastname: lastName,
-          bio: bio
-        }
+        userId, // Using userId as Document ID
+        data
       );
-    } catch (error:any) {
-      
+    } catch (error: any) {
+      // If document not found (404), create it now.
       if (error.code === 404) {
         await databases.createDocument(
           DATABASE_ID,
           COLLECTION_ID2,
-          google_id,
+          userId, // Force Document ID to match Auth ID
           {
-            user_id: google_id,
-            username: userName,
-            firstname: firstName,
-            lastname: lastName,
-            bio: bio,
+            ...data,
+            user_id: userId, 
+            email: "email@placeholder.com" 
           }
         );
       } else {
-        
-        throw error;
+        throw error; 
       }
     }
 
@@ -242,165 +160,142 @@ export const saveUserDetails = async (
   }
 };
 
-export const addToSavedMovies = async(movie:MovieDetails): Promise<boolean> =>{
+export const addToSavedMovies = async (
+  userId: string,
+  movie: MovieDetails
+): Promise<boolean> => {
   try {
+    const document_id = `${userId}_${movie.id}`.slice(0, 36);
 
-    const account = new Account(client);
-    const user = await account.get()
-    const google_id = user.$id;
+  
+    const genres = movie.genres?.map((genre) => genre.name) || [];
+    const releaseYear = movie.release_date?.split("-")[0] || "N/A";
 
-    const document_id = `${google_id}_${movie.id}`.slice(0,36);
-
-    const genres = movie?.genres.map((genre)=>genre.name)
-    const release_date = movie.release_date.split('-')[0]
-      //add document to saved collection
-    const result = await databases.createDocument(DATABASE_ID,COLLECTION_ID3,document_id,{
-        user_id: google_id,
+    await databases.createDocument(
+      DATABASE_ID,
+      COLLECTION_ID3,
+      document_id,
+      {
+        user_id: userId,
         movie_id: movie.id,
         movie_name: movie.title,
         movie_genre: genres,
-        movie_releaseDate : release_date,
-        poster_path : movie.poster_path,
-        
-    })
+        movie_releaseDate: releaseYear,
+        poster_path: movie.poster_path,
+      }
+    );
+
     return true;
-  } catch (error) {
-      console.log("Error while adding to saved movies (appwrite file): ",error);
-      return false
-  }
-}
-
-export const removeFromSavedMovies = async(movie:MovieDetails): Promise<boolean>=>{
- 
-    try {
-      
-    const account = new Account(client);
-    const user = await account.get()
-    const google_id = user.$id;
-
-    const document_id = `${google_id}_${movie.id}`.slice(0,36);
-
-    //remove document from saved collection
-    await databases.deleteDocument(DATABASE_ID,COLLECTION_ID3,document_id)
-    return true;
-
-    
-
-    } catch (error) {
-      console.log("Error while removing saved movies (appwrite file): ",error);
-      return false
+  } catch (error: any) {
+    // Error 409 is that a document with this ID already exists.
+    if (error.code === 409) {
+      console.log("Movie already in favorites (Duplicate skipped).");
+      return true;
     }
-
-}
-
-export const checkLikedStatus = async(movie:MovieDetails):Promise<boolean>=>{
-  try {
-    const account = new Account(client);
-    const user = await account.get()
-    const google_id = user.$id;
-
-    const document_id = `${google_id}_${movie.id}`.slice(0,36);
-    
-    await databases.getDocument(DATABASE_ID, COLLECTION_ID3, document_id);
-
-    
-    return true;
-   
-  } catch (error : any) {
-    if(error.code === 404){
-      console.log("Movie is not in saved");
-      return false;
-    }
-    console.log("Error checking like status(appwrite file): ",error);
+    console.log("Error while adding to saved movies:", error);
     return false;
   }
-}
+};
 
-
-
-// export const getUserDetails = async(google_id:string) : Promise<Userdetails> => {
-//   try {
-
-//     //get user details from the collection and return
-//     const result  = await databases.listDocuments(DATABASE_ID,COLLECTION_ID2,[
-//       Query.equal("user_id",google_id)
-//     ])
-
-    
-//     if (result.documents.length === 0) {
-//       return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
-      
-//     }
-
-//     const user_name = result.documents[0].username;
-//     const first_Name = result.documents[0].firstname;
-//     const last_Name = result.documents[0].lastname;
-//     const bio_ = result.documents[0].bio;
-  
-//     return { user_name,first_Name,last_Name,bio_};
-
-    
-//   } catch (error) {
-//     console.log("Error fetching user details (appwrite file):",error);
-//     throw new Error("Error while fetching user details");
-//   }
-// }
-
-
-
-
-export const getUserDetails = async (google_id: string): Promise<Userdetails> => {
+export const removeFromSavedMovies = async (
+  userId: string,
+  movieId: number 
+): Promise<boolean> => {
   try {
+
+    const document_id = `${userId}_${movieId}`.slice(0, 36);
+
+    await databases.deleteDocument(
+      DATABASE_ID,
+      COLLECTION_ID3,
+      document_id
+    );
+
+    return true;
+  } catch (error: any) {
+    // If error is 404, the document is already gone. 
+    if (error.code === 404) {
+      console.log("Movie already removed (skipping delete).");
+      return true;
+    }
+
+    console.log("Error while removing saved movie:", error);
+    return false;
+  }
+};
+
+export const checkLikedStatus = async (
+  userId: string, 
+  movieId: number 
+): Promise<boolean> => {
+  try {
+    const document_id = `${userId}_${movieId}`.slice(0, 36);
+
+    await databases.getDocument(DATABASE_ID, COLLECTION_ID3, document_id);
+
+    return true;
+
+  } catch (error: any) {
+    // If error is 404, document is missing
+    if (error.code === 404) {
+      return false; 
+    }
     
-    const result = await databases.getDocument(DATABASE_ID, COLLECTION_ID2, google_id);
-    
-    
+    console.log("Error checking like status:", error);
+    return false;
+  }
+};
+
+export const getUserDetails = async (userId: string): Promise<Userdetails> => {
+  try {
+    const result = await databases.getDocument(
+      DATABASE_ID, 
+      COLLECTION_ID2, 
+      userId
+    );
+
     return {
-      user_name: result.username,
-      first_Name: result.firstname,
-      last_Name: result.lastname,
-      bio_: result.bio
+      user_name: result.username || "",
+      first_Name: result.firstname || "",
+      last_Name: result.lastname || "",
+      bio_: result.bio || ""
     };
     
   } catch (error: any) {
-   
+    // If the document doesn't exist yet, return empty strings so the form is blank but usable.
     if (error.code === 404) {
-      
-      return { user_name: '', first_Name: '', last_Name: '', bio_: '' };
-    } else {
-      
-      console.log("Error fetching user details (appwrite file):", error);
-      throw new Error("Error while fetching user details");
-    }
+      return { 
+        user_name: '', 
+        first_Name: '', 
+        last_Name: '', 
+        bio_: '' 
+      };
+    } 
+    
+    console.log("Error fetching user details:", error);
+    throw error;
   }
 }
 
 
-export const getSavedMovies = async(google_id:string) : Promise<FavouriteMovie[]> =>{
+export const getSavedMovies = async (userId: string): Promise<FavouriteMovie[]> => {
   try {
-    const account = new Account(client);
-    const user = await account.get()
-    const google_id = user.$id;
+    const result = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID3,
+      [Query.equal("user_id", userId)]
+    );
 
-    const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID3,[
-      Query.equal("user_id",google_id)
-    ])
+    const movies = result.documents.map((doc) => ({
+      id: doc.movie_id,
+      title: doc.movie_name,
+      release_date: doc.movie_releaseDate,
+      poster_path: doc.poster_path,
+    }));
 
-    if(result.documents.length!=0){
-      const movies = result.documents.map((item)=>({
-        id : item.movie_id,
-        title: item.movie_name,
-        release_date: item.movie_releaseDate,
-        poster_path: item.poster_path,
-      }
-      ))
-
-     return movies as unknown as FavouriteMovie[]
-    }
-
-   return undefined as unknown as FavouriteMovie[];
-} catch (error) {
-   console.log(error);
-   return undefined as unknown as FavouriteMovie[]
-}
-}
+    return movies as unknown as FavouriteMovie[];
+  } catch (error) {
+    console.log("Error fetching saved movies:", error);
+    return []; 
+  }
+};

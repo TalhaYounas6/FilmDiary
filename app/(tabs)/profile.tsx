@@ -1,217 +1,214 @@
-import { client, getUserDetails, loginWithGoogleService, saveUserDetails } from "@/services/appwrite";
+import { useAuth } from "@/context/AuthContext";
+import { getUserDetails, saveUserDetails } from "@/services/appwrite";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-import { Account } from "react-native-appwrite";
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
+export default function Profile() {
+  const { session, user, logout } = useAuth();
+  const router = useRouter();
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUserName] = useState("");
+  const [bio, setBio] = useState("");
 
-const Profile = () => {
+  const [isFetching, setIsFetching] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [loading,setLoading] = useState(false);
-  const [isloggedIn, setLoggedin] = useState(false)
-  const [firstName,setFirstName] = useState("");
-  const [lastName,setLastName] = useState("");
-  const [username,setUserName] = useState("");
-  const [bio,setBio] = useState("");
-  const [saved,setSaved] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  useEffect(() => {
+    let isMounted = true;
 
-  // const {user,loading: gettingUserLoading,error:userError} = useAccount();
-  
-  const handleRefresh = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+    const fetchDetails = async () => {
+      if (!user?.$id) return;
 
-  // const checkAuthStatus = async()=>{
-  //     try {
-  //       setLoading(true);
-  //       const account = new Account(client);
-  //       const user = await account.get();
-  //       setLoggedin(!!user?.$id)
-  //     } catch (error) {
-  //       console.log("Error: ",error);
-  //       setLoggedin(false);
-  //     }finally{
-  //       setLoading(false);
-  //     }
-  //   }
-
-  const handleGooglelogin =  async()=>{
-    try {
-      setLoading(true);
-      const success = await loginWithGoogleService();
-      setLoggedin(success);
-    } catch (error) {
-      console.log("Login Error: ",error);
-      setLoggedin(false)
-    }finally{
-      setLoading(false)
-      handleRefresh();
-    }
-  }
-
-  const handleLogOut = async()=>{
-    try {
-      setLoading(true);
-      const account = new Account(client);
-      await account.deleteSession('current');
-      setLoggedin(false);
-    } catch (error) {
-      console.log("Log out error: ",error);
-    }finally{
-      setLoading(false);
-    }
-  }
-
-  const handleSaveButton = async()=>{
-    try {
-      setLoading(true);
-      const saveSuccess = await saveUserDetails(username,firstName,lastName,bio);
-      setSaved(saveSuccess)
-    } catch (error) {
-      console.log("Error while saving details: ",error);
-      setSaved(false);
-    }finally{
-      setLoading(false);
-      // handleRefresh();
-    }
-  }
-  
-  
-
-  useEffect(()=>{
-
-    const checkAuthStatus = async()=>{
       try {
-        setLoading(true);
-        const account = new Account(client);
-        const user = await account.get();
-        setLoggedin(!!user?.$id)
-      } catch (error) {
-        console.log("Error: ",error);
-        setLoggedin(false);
-      }finally{
-        setLoading(false);
-      }
-    }
-    checkAuthStatus();
-  },[])
+        setIsFetching(true);
+        const data = await getUserDetails(user.$id);
 
-  
-
-  useEffect(()=>{
-
-    const fillUserDetails = async()=>{
-      try {
-        setLoading(true);
-        const account = new Account(client);
-        let user = await account.get();
-        if(user){
-          const {user_name,first_Name,last_Name,bio_} = await getUserDetails(user.$id);
-          setUserName(user_name);
-          setFirstName(first_Name);
-          setLastName(last_Name);
-          setBio(bio_);
+        if (isMounted && data) {
+          setUserName(data.user_name || "");
+          setFirstName(data.first_Name || "");
+          setLastName(data.last_Name || "");
+          setBio(data.bio_ || "");
         }
       } catch (error) {
-        console.log("Error while filling user details",error)
-      }finally{
-        setLoading(false);
+        console.log("Error fetching profile:", error);
+      } finally {
+        if (isMounted) setIsFetching(false);
       }
-    }
-    
-    fillUserDetails();
-    
-  },[refreshTrigger])
+    };
 
-  if (loading){
-    return(
-      <View className="bg-primary px-10 flex-1 justify-center">
-          <ActivityIndicator size='large' />
-      </View>
-    )
-  }
+    fetchDetails();
 
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.$id]);
 
-  return (
-  <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
-    <View className="bg-primary px-10 flex-1">
-      {isloggedIn ? (
-        //logged in view - Profile/Edit form
-      
-        <View className="bg-purple-950 rounded-2xl p-6 shadow-lg mt-20">
-          <Text className="text-2xl font-bold text-center mb-6 text-white">Edit Profile</Text>
-          
-          <View className="flex-row mb-4">
-            <View className="flex-1 mr-2">
-              <Text className="text-sm font-medium text-white mb-1">First Name</Text>
-              <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-gray-900 text-white"
-                onChangeText={(text) => setFirstName(text)}
-                value={firstName}
-                placeholder="Enter first name"
-              />
-            </View>
-            <View className="flex-1 ml-2">
-              <Text className="text-sm font-medium text-white mb-1">Last Name</Text>
-              <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-gray-900 text-white"
-                onChangeText={(text) => setLastName(text)}
-                value={lastName}
-                placeholder="Enter last name"
-              />
-            </View>
-          </View>
+  if (!session || !user) {
+    return (
+      <View className="flex-1 justify-center items-center bg-primary px-6">
+        <View className="bg-purple-950/40 p-8 rounded-2xl w-full border border-purple-900/30">
+          <Text className="text-white text-3xl font-bold mb-4 text-center">
+            Profile
+          </Text>
+          <Text className="text-gray-400 text-center mb-8 text-lg leading-6">
+            Log in to track your watched movies, customize your profile, and
+            connect with others.
+          </Text>
 
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-white mb-1">Username</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg px-4 py-3 bg-gray-900 text-white"
-              onChangeText={(text) => setUserName(text)}
-              value={username}
-              placeholder="Enter username"
-            />
-          </View>
+          <TouchableOpacity
+            onPress={() => router.push("/signin")}
+            className="w-full bg-black py-4 rounded-xl mb-4"
+          >
+            <Text className="text-center font-bold text-white text-lg">
+              Log In
+            </Text>
+          </TouchableOpacity>
 
-          <View className="mb-6">
-            <Text className="text-sm font-medium text-white mb-1">Bio</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg px-4 py-3 bg-gray-900 h-20 text-align-top text-white"
-              onChangeText={(text) => setBio(text)}
-              value={bio}
-              placeholder="Tell us about yourself..."
-              multiline
-            />
-          </View>
-
-          <View className="flex-row justify-between">
-            <TouchableOpacity 
-              onPress={handleSaveButton}
-              className="bg-red-600 rounded-full px-6 py-3 flex-1 mr-2"
-            >
-              <Text className="text-white font-semibold text-center">Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={handleLogOut}
-              className="bg-gray-200 rounded-full px-6 py-3 flex-1 ml-2 "
-            >
-              <Text className="text-gray-700 font-semibold text-center mt-2 ">Log out</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-       
-      ) 
-      :(
-        //logged out view
-        <View className="flex justify-center items-center mt-20">
-          <TouchableOpacity onPress={handleGooglelogin}>
-            <Text className="text-black font-semibold rounded-full px-5 py-5 bg-green-600">Log in with Google</Text>
+          <TouchableOpacity
+            onPress={() => router.push("/signup")}
+            className="w-full border-2 bg-red-800 py-4 rounded-xl"
+          >
+            <Text className="text-center font-bold text-white text-lg">
+              Create Account
+            </Text>
           </TouchableOpacity>
         </View>
-      )}
-    </View>
-    </TouchableWithoutFeedback> 
-  );
-};
+      </View>
+    );
+  }
 
-export default Profile;
+  // 3. Handle Save Changes
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      //might need to pass user.$id
+      await saveUserDetails(user.$id, username, firstName, lastName, bio);
+      Alert.alert("Success", "Profile updated successfully!");
+    } catch (error: any) {
+      Alert.alert("Error", "Failed to update profile.");
+      console.log("Save error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      Alert.alert("Error", "Failed to log out.");
+    }
+  };
+
+  if (isFetching) {
+    return (
+      <View className="bg-primary flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#ffffff" />
+      </View>
+    );
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View className="bg-primary px-6 flex-1 pt-10">
+        <View className="bg-purple-950/50 rounded-2xl p-6 shadow-lg border border-purple-900/50 mt-10">
+          <Text className="text-2xl font-bold text-center mb-6 text-white">
+            Edit Profile
+          </Text>
+
+          {/* Name Row */}
+          <View className="flex-row gap-4 mb-4">
+            <View className="flex-1">
+              <Text className="text-gray-300 text-sm mb-1 ml-1">
+                First Name
+              </Text>
+              <TextInput
+                className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
+                onChangeText={setFirstName}
+                value={firstName}
+                placeholder="First Name"
+                placeholderTextColor="#666"
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="text-gray-300 text-sm mb-1 ml-1">Last Name</Text>
+              <TextInput
+                className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
+                onChangeText={setLastName}
+                value={lastName}
+                placeholder="Last Name"
+                placeholderTextColor="#666"
+              />
+            </View>
+          </View>
+
+          {/* Username */}
+          <View className="mb-4">
+            <Text className="text-gray-300 text-sm mb-1 ml-1">Username</Text>
+            <TextInput
+              className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
+              onChangeText={setUserName}
+              value={username}
+              placeholder="Enter username"
+              placeholderTextColor="#666"
+              autoCapitalize="none"
+            />
+          </View>
+
+          {/* Bio */}
+          <View className="mb-8">
+            <Text className="text-gray-300 text-sm mb-1 ml-1">Bio</Text>
+            <TextInput
+              className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white h-24 text-align-top"
+              onChangeText={setBio}
+              value={bio}
+              placeholder="Tell us about yourself..."
+              placeholderTextColor="#666"
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+
+          {/* Buttons */}
+          <View className="flex-row gap-4">
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={isSaving}
+              className={`flex-1 py-4 rounded-full ${isSaving ? "bg-red-800" : "bg-red-600"}`}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white font-semibold text-center">
+                  Save Changes
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="flex-1 bg-gray-700 py-4 rounded-full"
+            >
+              <Text className="text-white font-semibold text-center">
+                Log Out
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
+  );
+}

@@ -1,6 +1,6 @@
-import { AntDesign } from "@expo/vector-icons"
-import React from 'react'
-import { ActivityIndicator, TouchableOpacity, View } from 'react-native'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React from 'react';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 interface HeartProps {
     isLiked : boolean,
@@ -15,8 +15,8 @@ export const Heart = ({isLiked,toggleLike,isLoading=false,isNotLoggedIn}: HeartP
 
   return (
     <TouchableOpacity onPress={toggleLike} disabled={isLoading || isNotLoggedIn} className='flex flex-row items-center'>
-        <AntDesign 
-        name={isLiked?"heart":'hearto'}
+        <FontAwesome 
+        name={isLiked?"heart":'heart-o'}
         size={30}
         color={isLiked?"red":"gray"}
         className='p-5'
