@@ -308,3 +308,146 @@ export const getSavedMovies = async (
     return [];
   }
 };
+
+const safeParse = (str: string | null) => {
+  try {
+    return str ? JSON.parse(str) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+export const findCompatibleUsers = async (
+  currentUserId: string,
+): Promise<UserScore[] | string> => {
+  try {
+    const myMovies = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID3,
+      [Query.equal("user_id", currentUserId)],
+    );
+
+    //check if the user has atleast 30 favourites
+    if (myMovies.documents.length >= 30) {
+      return "Not_Enough_Movies";
+    }
+
+    // for faster lookup
+    const myProfile = {
+      movieIds: new Set<Number>(),
+      directorIds: new Set<Number>(),
+      actorIds: new Set<Number>(),
+      keywordIds: new Set<Number>(),
+      genreIds: new Set<Number>(),
+    };
+
+    myMovies.documents.forEach((doc) => {
+      myProfile.movieIds.add(doc.movie_id);
+      if (doc.director_id) {
+        myProfile.directorIds.add(doc.director_id);
+      }
+      safeParse(doc.actor_ids).forEach((id: number) => {
+        myProfile.actorIds.add(id);
+      });
+      safeParse(doc.keyword_ids).forEach((id: number) => {
+        myProfile.keywordIds.add(id);
+      });
+      safeParse(doc.genre_ids).forEach((id: number) => {
+        myProfile.genreIds.add(id);
+      });
+    });
+
+    //fetching users from which compatibility will be checked
+    // fetching last 1000 users so active users will be selected
+    // just for now
+    // when this applications users will be in millions this function
+    // will be deployed on appwrite cloud
+
+    const candidates = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID3,
+      [
+        Query.limit(1000),
+        Query.orderDesc("$createdAt"),
+        Query.notEqual("user_id", currentUserId),
+      ],
+    );
+
+    const userMap: Record<string, any[]> = {};
+    candidates.documents.forEach((doc) => {
+      if (!userMap[doc.user_id]) userMap[doc.user_id] = [];
+      userMap[doc.user_id].push(doc);
+    });
+
+    // Scoring Logic
+    const scores: UserScore[] = [];
+
+    Object.keys(userMap).forEach((otherUserId) => {
+      const theirProfile = userMap[otherUserId];
+
+      if (theirProfile.length <= 30) {
+        return;
+      }
+
+      let score = 0;
+      const matches = {
+        movies: [] as string[],
+        directors: [] as string[],
+        genres: [] as string[],
+        keywords: [] as string[],
+      };
+
+      theirProfile.forEach((doc) => {
+        // 1-Exact movie match ( 20 points)
+        if (myProfile.movieIds.has(doc.movie_id)) {
+          score = score + 20;
+          matches.movies.push(doc.movie_name);
+        }
+
+        // 2-Director match ( 10 points )
+        if (doc.director_id && myProfile.directorIds.has(doc.movie_id)) {
+          score = score + 10;
+          if (doc.director_name) matches.directors.push(doc.director_name);
+        }
+
+        // 3-Actor Match ( 3 points )
+        const actors = safeParse(doc.actor_ids);
+        if (actors.some((id: number) => myProfile.actorIds.has(id))) {
+          score = score + 3;
+        }
+        // 4-Keyword match (5 points)
+        const keywords = safeParse(doc.keyword_ids);
+        keywords.forEach((id: number) => {
+          if (myProfile.keywordIds.has(id)) {
+            score = score + 5;
+          }
+        });
+        // 5-Genre match (2 points)
+        const genres = safeParse(doc.genre_ids);
+        genres.forEach((id: number) => {
+          if (myProfile.genreIds.has(id)) {
+            score = score + 2;
+          }
+        });
+      });
+
+      if (score > 0) {
+        scores.push({
+          userId: otherUserId,
+          score,
+          matches: {
+            movies: [...new Set(matches.movies)],
+            directors: [...new Set(matches.directors)],
+            genres: [],
+            keywords: [],
+          },
+        });
+      }
+    });
+
+    return scores.sort((a, b) => b.score - a.score).slice(0, 5);
+  } catch (error) {
+    console.error("Matching Algorithm Failed");
+    return [];
+  }
+};

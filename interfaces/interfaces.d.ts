@@ -112,3 +112,14 @@ interface TrendingCardProps {
   movie: TrendingMovie;
   index: number;
 }
+
+interface UserScore {
+  userId: string;
+  score: number;
+  matches: {
+    movies: string[];    
+    directors: string[]; 
+    genres: string[];    
+    keywords: string[];  
+  };
+}
