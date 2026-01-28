@@ -23,10 +23,10 @@ interface FavouriteMovie {
 }
 
 interface Userdetails {
-  user_name : string,
-  first_Name : string,
-  last_Name : string,
-  bio_ : string
+  user_name: string;
+  first_Name: string;
+  last_Name: string;
+  bio_: string;
 }
 
 interface User {
@@ -96,6 +96,16 @@ interface MovieDetails {
   video: boolean;
   vote_average: number;
   vote_count: number;
+}
+
+interface AIReadyMovie extends MovieDetails {
+  credits: {
+    crew: { id: number; job: string; name: string }[];
+    cast: { id: number; name: string }[];
+  };
+  keywords: {
+    keywords: { id: number; name: string }[];
+  };
 }
 
 interface TrendingCardProps {

@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { Link, Redirect, router } from "expo-router";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -51,10 +51,10 @@ export default function SignUp() {
 
     try {
       await register({ email, password, name });
-      if(router.canGoBack()){
-        router.back()
-      }else{
-        router.replace('/(tabs)/profile');
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/profile");
       }
     } catch (error: any) {
       Alert.alert("Registration Failed", error.message);
@@ -126,11 +126,14 @@ export default function SignUp() {
       <View className="flex-col items-center">
         <View className="flex-row justify-center mt-5 items-center">
           <Text className="text-gray-400">Already have an account? </Text>
-          <Link href="../signin" asChild>
-            <TouchableOpacity>
-              <Text className="text-blue-500 font-semibold">Sign In</Text>
-            </TouchableOpacity>
-          </Link>
+
+          <TouchableOpacity
+            onPress={() => {
+              router.replace("/signin");
+            }}
+          >
+            <Text className="text-blue-500 font-semibold">Sign In</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity className="mt-5" onPress={() => router.replace("/")}>
           <Text className="text-red-500 rounded-2xl bg-red-900 px-5 py-2 font-semibold">

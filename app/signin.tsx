@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -105,11 +105,14 @@ export default function SignIn() {
 
       <View className="flex-row justify-center mt-5">
         <Text className="text-gray-400">Don't have an account? </Text>
-        <Link href="../signup" asChild>
-          <TouchableOpacity>
-            <Text className="text-blue-500 font-semibold">Sign Up</Text>
-          </TouchableOpacity>
-        </Link>
+
+        <TouchableOpacity
+          onPress={() => {
+            router.replace("/signup");
+          }}
+        >
+          <Text className="text-blue-500 font-semibold">Sign Up</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

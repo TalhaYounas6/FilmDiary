@@ -71,7 +71,10 @@ const MovieDetails = () => {
         if (!user) return;
         if (!prevLikeState) {
           //if it wasn't liked before, liking it now
-          const success = await addToSavedMovies(user.$id, movie);
+          const success = await addToSavedMovies(
+            user.$id,
+            movie as AIReadyMovie,
+          );
           if (!success) throw new Error("Failed to add movie to favourites");
         } else {
           //if liked before, now unliking it
@@ -155,21 +158,18 @@ const MovieDetails = () => {
             label="Genre"
             content={movie?.genres.map((g) => g.name).join(" - ") || "N/A"}
           />
-
-          <View className="flex flex-row justify-between w-1/2">
-            <MovieItem
-              label="Budget"
-              content={
-                `$${Math.round(movie?.budget / 1000000)} million` || "N/A"
-              }
-            />
-            <MovieItem
-              label="Revenue"
-              content={
-                `$${Math.round(movie?.revenue / 1000000)} million` || "N/A"
-              }
-            />
-          </View>
+          {movie?.revenue !== 0 && movie?.budget !== 0 ? (
+            <View className="flex flex-row justify-between w-1/2">
+              <MovieItem
+                label="Budget"
+                content={`$${Math.round(movie?.budget / 1000000)} million`}
+              />
+              <MovieItem
+                label="Revenue"
+                content={`$${Math.round(movie?.revenue / 1000000)} million`}
+              />
+            </View>
+          ) : null}
 
           <MovieItem label="Language" content={lang} />
 
