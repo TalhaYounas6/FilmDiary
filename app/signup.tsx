@@ -51,12 +51,17 @@ export default function SignUp() {
 
     try {
       await register({ email, password, name });
+      if(router.canGoBack()){
+        router.back()
+      }else{
+        router.replace('/(tabs)/profile');
+      }
     } catch (error: any) {
       Alert.alert("Registration Failed", error.message);
     }
   };
 
-  if (session) return <Redirect href="/(tabs)/profile" />;
+  // if (session) return <Redirect href="/(tabs)/profile" />;
 
   return (
     <View className="bg-primary px-10 flex-1 justify-center gap-4">

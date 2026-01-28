@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { Link, Redirect } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -42,13 +42,17 @@ export default function SignIn() {
 
     try {
       await login({ email, password });
-
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/profile");
+      }
     } catch (error: any) {
       Alert.alert("Login Failed", error.message);
     }
   };
 
-  if (session) return <Redirect href="/(tabs)/profile" />;
+  // if (session) return <Redirect href="/(tabs)/profile" />;
 
   return (
     <View className="bg-primary px-10 flex-1 justify-center gap-4">
