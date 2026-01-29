@@ -7,6 +7,7 @@ import { getTrendingMovies } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import {router} from "expo-router"
 import {
   ActivityIndicator,
   FlatList,
@@ -77,7 +78,7 @@ export default function Index() {
                   className="w-15 h-12 mt-20 mb-5 self-center"
                   resizeMode="contain"
                 />
-                <TouchableOpacity className="w-[30%] mx-auto">
+                <TouchableOpacity className="w-[30%] mx-auto" onPress={()=>{router.push('../connect') }}>
                   <Text className="text-black font-bold text-xl text-center px-4 py-3 bg-green-600 rounded-xl">
                     Connect
                   </Text>

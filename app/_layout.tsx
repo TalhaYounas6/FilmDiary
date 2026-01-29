@@ -23,6 +23,8 @@ export default function RootLayout() {
           <Stack.Screen name="movies/[id]" />
           <Stack.Screen name="signin" />
           <Stack.Screen name="signup" />
+          <Stack.Screen name="connect" />
+          <Stack.Screen name="match-results" />
         </Stack>
       </ThemeProvider>
     </AuthProvider>
