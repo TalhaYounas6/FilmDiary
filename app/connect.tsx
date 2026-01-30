@@ -31,7 +31,7 @@ const connect = () => {
 
         const results = await findCompatibleUsers(user.$id);
 
-        if (results === "NOT_ENOUGH_MOVIES") {
+        if (results === "Not_Enough_Movies") {
           setLoading(false);
           Alert.alert(
             "Taste Profile Incomplete",
@@ -122,7 +122,7 @@ const connect = () => {
           onPress={handleFindBuddy}
           disabled={loading}
           className={`w-full h-16 rounded-xl flex-row justify-center items-center ${
-            loading ? "bg-gray-700" : "bg-secondary"
+            loading ? "bg-red-600" : "bg-purple-600"
           }`}
         >
           {loading ? (
@@ -146,6 +146,7 @@ const connect = () => {
         <TouchableOpacity
           onPress={() => router.back()}
           className="bg-black-200 h-14 rounded-2xl justify-center items-center mb-6 border border-black-100"
+          disabled={loading}
         >
           <Text className="text-white font-pbold text-lg">Return</Text>
         </TouchableOpacity>

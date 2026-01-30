@@ -328,7 +328,7 @@ export const findCompatibleUsers = async (
     );
 
     //check if the user has atleast 30 favourites
-    if (myMovies.documents.length >= 30) {
+    if (myMovies.documents.length < 30) {
       return "Not_Enough_Movies";
     }
 

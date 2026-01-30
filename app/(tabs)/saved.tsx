@@ -64,11 +64,9 @@ const Saved = () => {
       />
 
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          className="mt-10 self-center"
-        />
+        <View className="bg-primary flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
       ) : error ? (
         <Text className="text-lg text-red-600 text-center my-auto">
           Error: {error?.message}

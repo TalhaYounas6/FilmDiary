@@ -1,14 +1,22 @@
 import { MatchCard } from "@/components/MatchCard";
 import { images } from "@/constants/images";
+import { useAuth } from "@/context/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const matchResults = () => {
+  const {user,session} = useAuth();
   const { results } = useLocalSearchParams();
   const [matchData, setMatchData] = useState<any[]>([]);
 
+  useEffect(()=>{
+    if(!session || !user){
+      router.replace("/");
+    }
+  },[user,session]);
+  
   useEffect(() => {
     if (results && typeof results === "string") {
       try {
