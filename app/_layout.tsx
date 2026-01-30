@@ -24,7 +24,7 @@ export default function RootLayout() {
           <Stack.Screen name="signin" />
           <Stack.Screen name="signup" />
           <Stack.Screen name="connect" />
-          <Stack.Screen name="match-results" />
+          <Stack.Screen name="matchResults" />
         </Stack>
       </ThemeProvider>
     </AuthProvider>

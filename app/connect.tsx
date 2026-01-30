@@ -142,6 +142,13 @@ const connect = () => {
         <Text className="text-gray-500 text-xs text-center mt-6">
           Requires at least 30 saved movies to work accurately.
         </Text>
+
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="bg-black-200 h-14 rounded-2xl justify-center items-center mb-6 border border-black-100"
+        >
+          <Text className="text-white font-pbold text-lg">Return</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </View>
   );
