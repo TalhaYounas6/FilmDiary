@@ -5,9 +5,9 @@ import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
 import { getTrendingMovies } from "@/services/appwrite";
 import { useFetch } from "@/services/useFetch";
+import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import {router} from "expo-router"
 import {
   ActivityIndicator,
   FlatList,
@@ -56,40 +56,44 @@ export default function Index() {
         className="z-0 flex-1 w-full absolute"
         resizeMode="cover"
       />
-
-      {moviesLoading || trendingMoviesLoading ? (
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          className="mt-10 self-center"
-        />
-      ) : moviesError || trendingMoviesError ? (
-        <Text className="text-lg text-red-600">
-          Error: {moviesError?.message || trendingMoviesError?.message}
-        </Text>
-      ) : (
-        <View className="flex-1 mt-5">
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={
-              <>
-                <Image
-                  source={icons.logo}
-                  className="w-15 h-12 mt-20 mb-5 self-center"
-                  resizeMode="contain"
-                />
-                <TouchableOpacity className="w-[30%] mx-auto" onPress={()=>{router.push('../connect') }}>
-                  <Text className="text-black font-bold text-xl text-center px-4 py-3 bg-green-600 rounded-xl">
-                    Connect
+      <View className="flex-1 mt-5">
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <>
+              <Image
+                source={icons.logo}
+                className="w-15 h-12 mt-20 mb-5 self-center"
+                resizeMode="contain"
+              />
+              <TouchableOpacity
+                className="w-[30%] mx-auto"
+                onPress={() => {
+                  router.push("../connect");
+                }}
+              >
+                <Text className="text-black font-bold text-xl text-center px-4 py-3 bg-green-600 rounded-xl">
+                  Connect
+                </Text>
+              </TouchableOpacity>
+              {trendingMovies && (
+                <View className="mt-10">
+                  <Text className="text-lg text-white font-bold mt-5 mb-3 ml-2">
+                    Popular Among Users
                   </Text>
-                </TouchableOpacity>
-                {trendingMovies && (
-                  <View className="mt-10">
-                    <Text className="text-lg text-white font-bold mt-5 mb-3 ml-2">
-                      Trending Movies
-                    </Text>
-                  </View>
-                )}
+                </View>
+              )}
+              {trendingMoviesLoading ? (
+                <ActivityIndicator
+                  size="large"
+                  color="#0000ff"
+                  className="py-20"
+                />
+              ) : trendingMoviesError ? (
+                <Text className="text-red-500 ml-2">
+                  Error loading trending movies.{trendingMoviesError.message}
+                </Text>
+              ) : (
                 <FlatList
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -101,32 +105,45 @@ export default function Index() {
                   )}
                   keyExtractor={(item) => item.movie_id.toString()}
                 />
+              )}
 
-                <Text className="text-lg text-white mt-5 mb-3 font-bold ml-2">
-                  Latest Movies
+              <Text className="text-lg text-white mt-5 mb-3 font-bold ml-2">
+                Latest Movies
+              </Text>
+            </>
+          }
+          data={movies}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={3}
+          columnWrapperStyle={{
+            justifyContent: "flex-start",
+            gap: 20,
+            // paddingRight: 5,
+            marginBottom: 10,
+            padding: 9,
+          }}
+          className="mt-2 pb-32"
+          contentContainerStyle={{
+            minHeight: "100%",
+            paddingBottom: 80,
+            padding: 5,
+          }}
+          renderItem={({ item }) => <MovieCard {...item} />}
+          ListEmptyComponent={() => (
+            <View className="flex-1 justify-center items-center mt-20">
+              {moviesLoading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : moviesError ? (
+                <Text className="text-red-600">
+                  Error: {moviesError.message}
                 </Text>
-              </>
-            }
-            data={movies}
-            renderItem={({ item }) => <MovieCard {...item} />}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={3}
-            columnWrapperStyle={{
-              justifyContent: "flex-start",
-              gap: 20,
-              // paddingRight: 5,
-              marginBottom: 10,
-              padding: 9,
-            }}
-            className="mt-2 pb-32"
-            contentContainerStyle={{
-              minHeight: "100%",
-              paddingBottom: 80,
-              padding: 5,
-            }}
-          />
-        </View>
-      )}
+              ) : (
+                <Text className="text-gray-400">No movies found.</Text>
+              )}
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 }

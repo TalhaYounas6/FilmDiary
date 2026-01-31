@@ -79,9 +79,11 @@ const connect = () => {
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/signin")}
-            className="w-full mt-4 rounded-2xl px-4 py-2"
+            className="mt-4 rounded-2xl px-5 py-3 bg-green-500"
           >
-            <Text>Log In to Connect</Text>
+            <Text className="text-black text-center text-lg ">
+              Log In to Connect
+            </Text>
           </TouchableOpacity>
         </SafeAreaView>
       </View>

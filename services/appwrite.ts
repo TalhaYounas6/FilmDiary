@@ -328,7 +328,8 @@ export const findCompatibleUsers = async (
     );
 
     //check if the user has atleast 30 favourites
-    if (myMovies.documents.length < 30) {
+    // Will be changed to 30
+    if (myMovies.documents.length < 10) {
       return "Not_Enough_Movies";
     }
 
@@ -384,8 +385,8 @@ export const findCompatibleUsers = async (
 
     Object.keys(userMap).forEach((otherUserId) => {
       const theirProfile = userMap[otherUserId];
-
-      if (theirProfile.length <= 30) {
+      // Will be changed to 30
+      if (theirProfile.length <= 10) {
         return;
       }
 

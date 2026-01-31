@@ -137,7 +137,7 @@ export default function SignUp() {
         </View>
         <TouchableOpacity className="mt-5" onPress={() => router.replace("/")}>
           <Text className="text-red-500 rounded-2xl bg-red-900 px-5 py-2 font-semibold">
-            Go Back
+            Go Back To Home
           </Text>
         </TouchableOpacity>
       </View>
