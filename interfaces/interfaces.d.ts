@@ -27,6 +27,7 @@ interface Userdetails {
   first_Name: string;
   last_Name: string;
   bio_: string;
+  avatar : string;
 }
 
 interface User {
@@ -117,9 +118,16 @@ interface UserScore {
   userId: string;
   score: number;
   matches: {
-    movies: string[];    
-    directors: string[]; 
-    genres: string[];    
-    keywords: string[];  
+    movies: string[];
+    directors: string[];
+    genres: string[];
+    keywords: string[];
   };
+}
+
+interface AppwriteFile {
+  name: string;
+  type: string;
+  size: number;
+  uri: string;
 }

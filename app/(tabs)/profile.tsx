@@ -1,10 +1,16 @@
 import { useAuth } from "@/context/AuthContext";
-import { getUserDetails, saveUserDetails } from "@/services/appwrite";
+import {
+  getUserDetails,
+  saveUserDetails,
+  updateUserAvatar,
+} from "@/services/appwrite";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Keyboard,
   Text,
   TextInput,
@@ -21,6 +27,7 @@ export default function Profile() {
   const [lastName, setLastName] = useState("");
   const [username, setUserName] = useState("");
   const [bio, setBio] = useState("");
+  const [avatar, setAvatar] = useState("");
 
   const [isFetching, setIsFetching] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,6 +47,7 @@ export default function Profile() {
           setFirstName(data.first_Name || "");
           setLastName(data.last_Name || "");
           setBio(data.bio_ || "");
+          setAvatar(data.avatar || "");
         }
       } catch (error) {
         console.log("Error fetching profile:", error);
@@ -89,12 +97,11 @@ export default function Profile() {
     );
   }
 
-
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      //might need to pass user.$id
+      // might need to pass user.$id
       await saveUserDetails(user.$id, username, firstName, lastName, bio);
       Alert.alert("Success", "Profile updated successfully!");
     } catch (error: any) {
@@ -113,6 +120,37 @@ export default function Profile() {
     }
   };
 
+  const handleImagePick = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      try {
+        setIsSaving(true);
+
+        // passing avatar state as old avatar url
+        const newAvatar = await updateUserAvatar(
+          user!.$id,
+          result.assets[0].uri,
+          avatar,
+        );
+
+        setAvatar(newAvatar);
+
+        Alert.alert("Profile picture updated successfully!");
+      } catch (error) {
+        Alert.alert("Error!Failed to update profile picture");
+        console.log("Error in image picker: ", error);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
   if (isFetching) {
     return (
       <View className="bg-primary flex-1 justify-center items-center">
@@ -128,6 +166,29 @@ export default function Profile() {
           <Text className="text-2xl font-bold text-center mb-6 text-white">
             Edit Profile
           </Text>
+          {/* Avatar */}
+          <View className="items-center mb-6">
+            <TouchableOpacity onPress={handleImagePick} className="relative">
+              <Image
+                key={avatar}
+                source={
+                  avatar
+                    ? { uri: avatar }
+                    : require("@/assets/images/defaultAvatar.jpg")
+                }
+                className="w-24 h-24 rounded-full border-2 border-purple-400"
+                resizeMode="cover"
+              />
+
+              <View className="absolute bottom-0 right-0 bg-pink-600 w-8 h-8 rounded-full justify-center items-center border border-white">
+                <Text className="text-black font-bold text-xl">+</Text>
+              </View>
+            </TouchableOpacity>
+
+            <Text className="text-gray-400 text-xs mt-2">
+              Tap to change photo
+            </Text>
+          </View>
 
           {/* Name Row */}
           <View className="flex-row gap-4 mb-4">

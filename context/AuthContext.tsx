@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         {
           username: name,
           firstname: name.split(" ")[0],
-          lastname: name.split(" ")[1],
+          lastname: name.split(" ")[1] || " ",
           bio: "",
         },
       );

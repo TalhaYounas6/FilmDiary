@@ -8,13 +8,17 @@ import {
   ID,
   OAuthProvider,
   Query,
+  Storage,
 } from "react-native-appwrite";
 
 export const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 export const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
 export const COLLECTION_ID2 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID2!;
 export const COLLECTION_ID3 = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID3!;
-
+export const STORAGE_BUCKET_ID1 =
+  process.env.EXPO_PUBLIC_APPWRITE_STORAGE_BUCKET_ID1!;
+export const PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!;
+const endpoint = "https://nyc.cloud.appwrite.io/v1";
 const router = useRouter();
 
 export const client = new Client()
@@ -24,6 +28,8 @@ export const client = new Client()
 export const databases = new Databases(client);
 
 export const account = new Account(client);
+
+export const storage = new Storage(client);
 
 //track user searches
 export const updateSearchCount = async (query: string, movie: Movie) => {
@@ -270,6 +276,7 @@ export const getUserDetails = async (userId: string): Promise<Userdetails> => {
       first_Name: result.firstname || "",
       last_Name: result.lastname || "",
       bio_: result.bio || "",
+      avatar: result.avatar || null,
     };
   } catch (error: any) {
     // If the document doesn't exist yet, return empty strings so the form is blank but usable.
@@ -279,6 +286,7 @@ export const getUserDetails = async (userId: string): Promise<Userdetails> => {
         first_Name: "",
         last_Name: "",
         bio_: "",
+        avatar: "",
       };
     }
 
@@ -445,10 +453,83 @@ export const findCompatibleUsers = async (
         });
       }
     });
-
-    return scores.sort((a, b) => b.score - a.score).slice(0, 5);
+    // returns best 3 people
+    return scores.sort((a, b) => b.score - a.score).slice(0, 3);
   } catch (error) {
     console.error("Matching Algorithm Failed");
     return [];
+  }
+};
+
+const getFileIdFromUrl = (url: string): string | null => {
+  if (!url) return null;
+
+  try {
+    // 1. Split the URL at "/files/"
+    const parts = url.split("/files/");
+
+    if (parts.length < 2) return null;
+
+    // 2. The second part starts with the ID: "unique_file_id/view?"
+    const fileId = parts[1].split("/")[0];
+
+    return fileId;
+  } catch (error) {
+    console.log("Error extracting ID:", error);
+    return null;
+  }
+};
+
+export const updateUserAvatar = async (
+  userId: string,
+  imageUri: string,
+  oldAvatarUrl?: string,
+): Promise<string> => {
+  try {
+    const file: AppwriteFile = {
+      name: `${userId}-${Date.now()}.jpg`,
+      type: "image/jpeg",
+      size: 1000,
+      uri: imageUri,
+    };
+
+    const uploadedFile = await storage.createFile(
+      STORAGE_BUCKET_ID1,
+      ID.unique(),
+      file as any,
+    );
+
+    // const newAvatarUrl = storage.getFilePreview(
+    //   STORAGE_BUCKET_ID1,
+    //   uploadedFile.$id,
+    // );
+
+    const avatarUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID1}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
+
+    await databases.updateDocument(DATABASE_ID, COLLECTION_ID2, userId, {
+      avatar: avatarUrl,
+    });
+
+    // clean up old avatar
+    if (oldAvatarUrl) {
+      const oldFileId = getFileIdFromUrl(oldAvatarUrl);
+
+      if (oldFileId) {
+        console.log("Attempting to delete old file:", oldFileId);
+        try {
+          await storage.deleteFile(STORAGE_BUCKET_ID1, oldFileId);
+          console.log("Old file deleted successfully");
+        } catch (error) {
+          console.log("Could not delete old file (it might not exist):", error);
+        }
+      } else {
+        console.log("Could not extract file ID from old URL:", oldAvatarUrl);
+      }
+    }
+
+    return avatarUrl;
+  } catch (error) {
+    console.error("Avatar updation failed: ", error);
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
   }
 };
