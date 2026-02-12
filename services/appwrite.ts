@@ -327,7 +327,7 @@ const safeParse = (str: string | null) => {
 
 export const findCompatibleUsers = async (
   currentUserId: string,
-): Promise<UserScore[] | string> => {
+): Promise<CompatibleUsers[] | string> => {
   try {
     const myMovies = await databases.listDocuments(
       DATABASE_ID,
@@ -454,7 +454,36 @@ export const findCompatibleUsers = async (
       }
     });
     // returns best 3 people
-    return scores.sort((a, b) => b.score - a.score).slice(0, 3);
+    const compatibleUsers = scores
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+    if (compatibleUsers.length == 0) {
+      return [];
+    }
+
+    const compatibleUsersId = compatibleUsers.map((user) => user.userId);
+
+    const compatibleUsersDetail = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID2,
+      [Query.equal("$id", compatibleUsersId)],
+    );
+
+    const finalResults = compatibleUsers.map((user) => {
+      const userDoc = compatibleUsersDetail.documents.find(
+        (u) => u.$id == user.userId,
+      );
+
+      return {
+        ...user,
+        userName: userDoc?.username,
+        avatar: userDoc?.avatar || null,
+      };
+
+    });
+
+    return finalResults;
+
   } catch (error) {
     console.error("Matching Algorithm Failed");
     return [];

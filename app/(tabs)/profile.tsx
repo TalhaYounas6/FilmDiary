@@ -34,7 +34,7 @@ export default function Profile() {
 
   useEffect(() => {
     let isMounted = true;
-
+    
     const fetchDetails = async () => {
       if (!user?.$id) return;
 

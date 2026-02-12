@@ -27,7 +27,7 @@ interface Userdetails {
   first_Name: string;
   last_Name: string;
   bio_: string;
-  avatar : string;
+  avatar: string;
 }
 
 interface User {
@@ -123,6 +123,11 @@ interface UserScore {
     genres: string[];
     keywords: string[];
   };
+}
+
+interface CompatibleUsers extends UserScore {
+  avatar?: string;
+  userName: string;
 }
 
 interface AppwriteFile {
