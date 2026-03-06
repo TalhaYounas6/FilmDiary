@@ -88,6 +88,16 @@ const _Layout = () => {
           ),
         }}
       />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          headerShown: false,
+          title: "Messages",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} title="Chat" icon={icons.msg} />
+          ),
+        }}
+      />
     </Tabs>
   );
 };

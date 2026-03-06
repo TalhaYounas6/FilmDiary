@@ -20,6 +20,7 @@ interface FavouriteMovie {
   title: string;
   poster_path: string;
   release_date: string;
+  isLoading: boolean;
 }
 
 interface Userdetails {

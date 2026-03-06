@@ -1,4 +1,5 @@
 import MovieCard from "@/components/MovieCard";
+import { MovieCardSkeleton } from "@/components/MovieCardSkeleton";
 import TrendingMovieCard from "@/components/TrendingMovieCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
@@ -8,14 +9,7 @@ import { useFetch } from "@/services/useFetch";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -84,11 +78,12 @@ export default function Index() {
                 </View>
               )}
               {trendingMoviesLoading ? (
-                <ActivityIndicator
-                  size="large"
-                  color="#0000ff"
-                  className="py-20"
-                />
+                //
+                <View className="flex-row gap-x-4 mt-4 mb-3 pl-2">
+                  {[1, 2, 3].map((item) => (
+                    <MovieCardSkeleton key={item} customClass="w-32 h-48" />
+                  ))}
+                </View>
               ) : trendingMoviesError ? (
                 <Text className="text-red-500 ml-2">
                   Error loading trending movies.{trendingMoviesError.message}
@@ -129,19 +124,36 @@ export default function Index() {
             padding: 5,
           }}
           renderItem={({ item }) => <MovieCard {...item} />}
-          ListEmptyComponent={() => (
-            <View className="flex-1 justify-center items-center mt-20">
-              {moviesLoading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-              ) : moviesError ? (
-                <Text className="text-red-600">
-                  Error: {moviesError.message}
-                </Text>
-              ) : (
+          ListEmptyComponent={() => {
+            if (moviesLoading) {
+              return (
+                <View className="flex-row flex-wrap justify-start gap-5 p-2 mt-2">
+                  {[1, 2, 3, 4, 5, 6].map((item) => (
+                    <MovieCardSkeleton
+                      key={item}
+                      customClass="w-[30%] aspect-[2/3]"
+                    />
+                  ))}
+                </View>
+              );
+            }
+
+            if (moviesError) {
+              return (
+                <View className="flex-1 justify-center items-center mt-20">
+                  <Text className="text-red-600">
+                    Error: {moviesError.message}
+                  </Text>
+                </View>
+              );
+            }
+
+            return (
+              <View className="flex-1 justify-center items-center mt-20">
                 <Text className="text-gray-400">No movies found.</Text>
-              )}
-            </View>
-          )}
+              </View>
+            );
+          }}
         />
       </View>
     </View>

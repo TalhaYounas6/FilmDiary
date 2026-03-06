@@ -7,16 +7,16 @@ import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const matchResults = () => {
-  const {user,session} = useAuth();
+  const { user, session } = useAuth();
   const { results } = useLocalSearchParams();
   const [matchData, setMatchData] = useState<any[]>([]);
 
-  useEffect(()=>{
-    if(!session || !user){
+  useEffect(() => {
+    if (!session || !user) {
       router.replace("/");
     }
-  },[user,session]);
-  
+  }, [user, session]);
+
   useEffect(() => {
     if (results && typeof results === "string") {
       try {
@@ -49,12 +49,18 @@ const matchResults = () => {
         </View>
 
         <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
           data={matchData}
           keyExtractor={(item) => item.userId}
           renderItem={({ item }) => <MatchCard item={item} />}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingVertical: 20,
+            flexGrow: 1,
+          }}
           ListEmptyComponent={() => (
-            <View className="items-center justify-center mt-20">
+            <View className="w-screen items-center justify-center mt-20">
               <Text className="text-gray-100 font-pmedium">
                 No matches data loaded.
               </Text>

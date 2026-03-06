@@ -9,6 +9,7 @@ import {
   OAuthProvider,
   Query,
   Storage,
+  Functions
 } from "react-native-appwrite";
 
 export const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
@@ -30,6 +31,8 @@ export const databases = new Databases(client);
 export const account = new Account(client);
 
 export const storage = new Storage(client);
+
+export const functions = new Functions(client);
 
 //track user searches
 export const updateSearchCount = async (query: string, movie: Movie) => {
@@ -414,7 +417,7 @@ export const findCompatibleUsers = async (
         }
 
         // 2-Director match ( 10 points )
-        if (doc.director_id && myProfile.directorIds.has(doc.movie_id)) {
+        if (doc.director_id && myProfile.directorIds.has(doc.director_id)) {
           score = score + 10;
           if (doc.director_name) matches.directors.push(doc.director_name);
         }
@@ -479,11 +482,9 @@ export const findCompatibleUsers = async (
         userName: userDoc?.username,
         avatar: userDoc?.avatar || null,
       };
-
     });
 
     return finalResults;
-
   } catch (error) {
     console.error("Matching Algorithm Failed");
     return [];

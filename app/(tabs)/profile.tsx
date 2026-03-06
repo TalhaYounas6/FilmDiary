@@ -12,6 +12,8 @@ import {
   Alert,
   Image,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -34,7 +36,7 @@ export default function Profile() {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchDetails = async () => {
       if (!user?.$id) return;
 
@@ -160,15 +162,23 @@ export default function Profile() {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View className="bg-primary px-6 flex-1 pt-10">
-        <View className="bg-purple-950/50 rounded-2xl p-6 shadow-lg border border-purple-900/50 mt-10">
-          <Text className="text-2xl font-bold text-center mb-6 text-white">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1 bg-primary"
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View className="flex-1 px-6 pt-20">
+          {/* Header
+          <Text className="text-2xl font-extrabold text-white mb-8">
             Edit Profile
-          </Text>
-          {/* Avatar */}
-          <View className="items-center mb-6">
-            <TouchableOpacity onPress={handleImagePick} className="relative">
+          </Text> */}
+
+          {/* Hero Avatar Section */}
+          <View className="items-center mb-10 mt-2">
+            <TouchableOpacity
+              onPress={handleImagePick}
+              className="relative shadow-xl shadow-purple-900/50"
+            >
               <Image
                 key={avatar}
                 source={
@@ -176,100 +186,115 @@ export default function Profile() {
                     ? { uri: avatar }
                     : require("@/assets/images/defaultAvatar.jpg")
                 }
-                className="w-24 h-24 rounded-full border-2 border-purple-400"
+                // Made it bigger and gave it a brighter border
+                className="w-32 h-32 rounded-full border-4 border-purple-500"
                 resizeMode="cover"
               />
 
-              <View className="absolute bottom-0 right-0 bg-pink-600 w-8 h-8 rounded-full justify-center items-center border border-white">
-                <Text className="text-black font-bold text-xl">+</Text>
+              {/* Adjusted the badge to look seamless against the avatar border */}
+              <View className="absolute bottom-0 right-2 bg-pink-500 w-10 h-10 rounded-full justify-center items-center border-4 border-primary">
+                <Text className="text-white font-black text-xl mb-1">+</Text>
               </View>
             </TouchableOpacity>
 
-            <Text className="text-gray-400 text-xs mt-2">
+            <Text className="text-purple-300 font-medium text-sm mt-4 tracking-wide">
               Tap to change photo
             </Text>
           </View>
 
-          {/* Name Row */}
-          <View className="flex-row gap-4 mb-4">
-            <View className="flex-1">
-              <Text className="text-gray-300 text-sm mb-1 ml-1">
-                First Name
+          {/* Form Container */}
+          <View className="w-full">
+            {/* Name Row */}
+            <View className="flex-row gap-4 mb-6">
+              <View className="flex-1">
+                <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
+                  First Name
+                </Text>
+                <TextInput
+                  className="border border-purple-800/50 rounded-2xl px-5 py-4 bg-purple-900/20 text-white font-medium"
+                  onChangeText={setFirstName}
+                  value={firstName}
+                  placeholder="First Name"
+                  placeholderTextColor="#8a7aa3"
+                />
+              </View>
+              <View className="flex-1">
+                <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
+                  Last Name
+                </Text>
+                <TextInput
+                  className="border border-purple-800/50 rounded-2xl px-5 py-4 bg-purple-900/20 text-white font-medium"
+                  onChangeText={setLastName}
+                  value={lastName}
+                  placeholder="Last Name"
+                  placeholderTextColor="#8a7aa3"
+                />
+              </View>
+            </View>
+
+            {/* Username */}
+            <View className="mb-6">
+              <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
+                Username
               </Text>
               <TextInput
-                className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
-                onChangeText={setFirstName}
-                value={firstName}
-                placeholder="First Name"
-                placeholderTextColor="#666"
+                className="border border-purple-800/50 rounded-2xl px-5 py-4 bg-purple-900/20 text-white font-medium"
+                onChangeText={setUserName}
+                value={username}
+                placeholder="Enter username"
+                placeholderTextColor="#8a7aa3"
+                autoCapitalize="none"
               />
             </View>
-            <View className="flex-1">
-              <Text className="text-gray-300 text-sm mb-1 ml-1">Last Name</Text>
+
+            {/* Bio */}
+            <View className="mb-10">
+              <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
+                Bio
+              </Text>
               <TextInput
-                className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
-                onChangeText={setLastName}
-                value={lastName}
-                placeholder="Last Name"
-                placeholderTextColor="#666"
+                className="border border-purple-800/50 rounded-2xl px-5 py-4 bg-purple-900/20 text-white font-medium h-32"
+                onChangeText={setBio}
+                value={bio}
+                placeholder="Tell us about yourself..."
+                placeholderTextColor="#8a7aa3"
+                multiline
+                textAlignVertical="top"
               />
             </View>
           </View>
 
-          {/* Username */}
-          <View className="mb-4">
-            <Text className="text-gray-300 text-sm mb-1 ml-1">Username</Text>
-            <TextInput
-              className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white"
-              onChangeText={setUserName}
-              value={username}
-              placeholder="Enter username"
-              placeholderTextColor="#666"
-              autoCapitalize="none"
-            />
-          </View>
-
-          {/* Bio */}
-          <View className="mb-8">
-            <Text className="text-gray-300 text-sm mb-1 ml-1">Bio</Text>
-            <TextInput
-              className="border border-gray-600 rounded-xl px-4 py-3 bg-gray-900 text-white h-24 text-align-top"
-              onChangeText={setBio}
-              value={bio}
-              placeholder="Tell us about yourself..."
-              placeholderTextColor="#666"
-              multiline
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Buttons */}
-          <View className="flex-row gap-4">
+          {/* Wrapped in a flex-row with a gap to put them side-by-side */}
+          <View className="flex-row gap-4 mt-4 w-full">
             <TouchableOpacity
               onPress={handleSave}
               disabled={isSaving}
-              className={`flex-1 py-4 rounded-full ${isSaving ? "bg-red-800" : "bg-red-600"}`}
+              // Swapped w-full for flex-1, and reduced py-4 to py-3
+              className={`flex-1 py-3 rounded-xl shadow-lg justify-center ${isSaving ? "bg-red-900" : "bg-purple-600"}`}
             >
               {isSaving ? (
-                <ActivityIndicator color="white" />
+                <ActivityIndicator color="white" size="small" />
               ) : (
-                <Text className="text-white font-semibold text-center">
-                  Save Changes
+                // Reduced text-lg to text-base
+                <Text className="text-white font-bold text-base text-center tracking-wide">
+                  Save
                 </Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleLogout}
-              className="flex-1 bg-gray-700 py-4 rounded-full"
+              // Swapped w-full for flex-1, reduced py-4 to py-3, removed mt-4
+              className="flex-1 py-3 rounded-xl border-2 border-purple-800 bg-transparent justify-center"
             >
-              <Text className="text-white font-semibold text-center">
+              {/* Reduced text-lg to text-base */}
+              <Text className="text-purple-300 font-bold text-base text-center tracking-wide">
                 Log Out
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }

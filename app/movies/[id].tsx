@@ -1,5 +1,6 @@
 import { language } from "@/assets/languages";
 import { Heart } from "@/components/Heart";
+import { MovieDetailsSkeleton } from "@/components/MovieDetailsSkeleton";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/context/AuthContext";
 import { fetchMovieDetails } from "@/services/api";
@@ -100,6 +101,12 @@ const MovieDetails = () => {
     }
   }
 
+  if(movieDetailsLoading || !movie ){
+    return(
+      <MovieDetailsSkeleton goBack={router.back}/>
+    )
+  }
+
   return (
     <View className="bg-primary flex-1">
       <ScrollView
@@ -108,19 +115,13 @@ const MovieDetails = () => {
         }}
       >
         <View>
-          {!movieDetailsLoading ? (
-            <Image
-              className="w-full h-[550px]"
-              resizeMode="stretch"
-              source={{
-                uri: `https://image.tmdb.org/t/p/w500/${movie?.poster_path}`,
-              }}
-            />
-          ) : (
-            <View className="w-full h-[550px] bg-black overflow-hidden flex justify-center items-center">
-              <Text className="text-gray-400">Loading...</Text>
-            </View>
-          )}
+          <Image
+            resizeMode="stretch"
+            source={{
+              uri: `https://image.tmdb.org/t/p/w500/${movie?.poster_path}`,
+            }}
+            className={"w-full h-[550px]"}
+          />
         </View>
         <View className="flex-col items-start justify-center mt-5 px-5">
           <View className="flex-row justify-between items-center flex-wrap">

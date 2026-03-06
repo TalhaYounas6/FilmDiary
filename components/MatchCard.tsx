@@ -1,5 +1,15 @@
-import React from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { chatClient, useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface MatchCardProps {
   item: {
@@ -15,53 +25,114 @@ interface MatchCardProps {
 }
 
 export const MatchCard = ({ item }: MatchCardProps) => {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+
+  const handleStartChat = async () => {
+    if (!user?.$id) {
+      Alert.alert("You must be logged in to chat");
+      return;
+    }
+
+    if (!chatClient.userID) {
+      Alert.alert("Chat is still connecting...try again later");
+      return;
+    }
+
+    setIsCreatingChat(true);
+
+    try {
+      const channel = chatClient.channel("messaging", {
+        members: [user.$id, item.userId],
+      });
+
+      await channel.watch();
+
+      router.push(`../chat/${channel.cid}`);
+    } catch (error) {
+      Alert.alert("Error", "Could not start Chat.Please try again");
+      console.error("Error creating channel: ", error);
+    } finally {
+      setIsCreatingChat(false);
+    }
+  };
+
   const scoreColor = item.score > 80 ? "text-red-500" : "text-gray-500";
+  console.log(item.matches.directors);
+
+  // Combine both arrays
+  const allMatches = [
+    ...(item.matches?.movies || []),
+    ...(item.matches?.directors || []),
+  ];
   return (
-    <View className="bg-black-100 border border-black-200 rounded-2xl p-5 mb-4">
-      <View className="flex-col justify-between items-center mb-4">
-        <View className="flex-row items-center mb-4">
-          <Image
-            source={
-              item.avatar
-                ? { uri: item.avatar }
-                : require("@/assets/images/defaultAvatar.jpg")
-            }
-            className="w-12 h-12 rounded-full border border-purple-300 mr-3"
-            resizeMode="cover"
-          />
-          <Text className="text-white font-psemibold text-sm" numberOfLines={1}>
-            {/* {item.userId} */}
+    <View className="bg-[#130b1c] border border-[#2a1744] rounded-2xl p-4 mr-4 w-72">
+      <Image
+        source={
+          item.avatar
+            ? { uri: item.avatar }
+            : require("@/assets/images/defaultAvatar.jpg")
+        }
+        className="w-full h-64 rounded-xl mb-3"
+        resizeMode="cover"
+      />
+
+      <View className="relative mb-4">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-white font-bold text-2xl" numberOfLines={1}>
             {item.userName}
           </Text>
-        </View>
-        <View className="items-end">
-          <Text className="text-gray-400 text-xs uppercase">Compatibility</Text>
-          <Text className={`${scoreColor} font-pbold text-2xl`}>
-            {item.score} pts
-          </Text>
+          <View className="w-3 h-3 rounded-full bg-pink-500" />
         </View>
 
-        <View className="bg-primary/50 p-3 rounded-xl">
-          <Text className="text-gray-100 text-sm mb-2">Shared Favorites:</Text>
-          <Text className="text-white font-pmedium">
-            {item.matches.movies.length > 0
-              ? item.matches.movies.join(", ")
-              : "No direct movie matches (matched on vibes!)"}
-          </Text>
+        <Text className="text-gray-400 text-xs mt-1 font-medium">
+          @{item.userName?.toLowerCase().replace(/\s/g, "") || item.userId}
+        </Text>
+        {/* <Text className="text-gray-300 text-xs mt-1">
+          Compatibility Score: {item.score} pts
+        </Text> */}
+      </View>
 
-          {item.matches.directors.length > 0 && (
-            <Text className="text-white font-pmedium mt-2">
-              <Text className="text-gray-100">Shared Directors: </Text>
-              {item.matches.directors.join(", ")}
+      <View className="mb-4 flex-1">
+        <Text className="text-white font-bold text-lg mb-1">You both love</Text>
+
+        <ScrollView className="max-h-20" showsVerticalScrollIndicator={true}>
+          {allMatches.length > 0 ? (
+            <Text className="text-gray-300 text-sm leading-5 font-medium">
+              {allMatches.join(" • ")}
+            </Text>
+          ) : (
+            <Text className="text-gray-400 text-sm italic">
+              Matched on vibes!
             </Text>
           )}
-        </View>
+        </ScrollView>
+      </View>
+
+      <View className="flex-col">
+        <TouchableOpacity
+          activeOpacity={0.7}
+          className="bg-[#2a1744] h-10 rounded-xl justify-center items-center mb-2"
+        >
+          <Text className="text-[#c084fc] font-bold text-sm">
+            Send friend request
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           activeOpacity={0.7}
-          className="bg-secondary/20 mt-5 h-12 rounded-xl justify-center items-center border border-secondary/50"
+          onPress={handleStartChat}
+          disabled={isCreatingChat}
+          className="bg-[#2a1744] h-10 rounded-xl justify-center items-center"
         >
-          <Text className="text-secondary font-pbold">Say Hello!</Text>
+          {isCreatingChat ? (
+            <ActivityIndicator size="small" color="#c084fc" />
+          ) : (
+            <Text className="text-[#c084fc] font-bold text-sm">
+              Send chat message
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

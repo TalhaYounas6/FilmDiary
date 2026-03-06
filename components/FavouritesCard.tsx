@@ -1,4 +1,3 @@
-import { icons } from "@/constants/icons";
 import { Link } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -8,6 +7,7 @@ const FavouritesCard = ({
   id,
   release_date,
   title,
+  isLoading,
 }: FavouriteMovie) => {
   return (
     <Link href={`/movies/${id}`} asChild>
@@ -18,7 +18,11 @@ const FavouritesCard = ({
               ? `https://image.tmdb.org/t/p/w500${poster_path}`
               : `https://placeholder.co/600x400/1a1a1a/ffffff.png`,
           }}
-          className="w-full h-52 rounded-lg"
+          className={
+            isLoading
+              ? "w-full h-52 rounded-lg bg-dark-100 animate-pulse"
+              : "w-full h-52 rounded-lg bg-dark-100"
+          }
           resizeMode="cover"
         />
         <Text
