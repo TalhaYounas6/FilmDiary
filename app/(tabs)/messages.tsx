@@ -1,7 +1,9 @@
+import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Image, Text, View } from "react-native";
 import type { Channel } from "stream-chat";
 import { ChannelList } from "stream-chat-expo";
 
@@ -25,10 +27,25 @@ const messages = () => {
 
   if (!user?.$id) {
     return (
-      <View className="flex-1 bg-primary justify-center items-center">
-        <Text className="text-white text-2xl">
-          Log in To View Your Messages
-        </Text>
+      <View className="flex-1 bg-primary">
+        <Image
+          source={images.bgpurple}
+          className="z-0 flex-1 w-full absolute"
+          resizeMode="cover"
+        />
+        <Image
+          source={icons.logo}
+          className="w-15 h-12 mt-20 mb-5 self-center"
+          resizeMode="contain"
+        />
+        <View className="absolute inset-0 justify-center items-center">
+          <Image
+            source={images.lock}
+            className="w-48 h-48"
+            resizeMode="contain"
+          />
+          <Text className="text-white">Log in to chat with others.</Text>
+        </View>
       </View>
     );
   }

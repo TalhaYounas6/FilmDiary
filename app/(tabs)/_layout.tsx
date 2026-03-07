@@ -1,19 +1,26 @@
 import { icons } from "@/constants/icons";
-import { images } from "@/constants/images";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Image, ImageBackground, View } from "react-native";
+import { Image, View } from "react-native";
 
 const TabIcon = ({ icon, focused, title }: any) => {
   if (focused) {
     return (
-      <ImageBackground
-        source={images.highlight2}
-        className="flex flex-row w-full flex-1 min-w-[75px] min-h-16 mt-4 justify-center items-center rounded-full overflow-hidden"
-      >
-        <Image source={icon} className="size-5" tintColor="#000" />
-        {/* <Text className="text-black text-base font-bold">{title}</Text> */}
-      </ImageBackground>
+      // <ImageBackground
+      //   source={images.highlight2}
+      //   className="flex flex-row w-full flex-1 min-w-[75px] min-h-16 mt-4 justify-center items-center rounded-full overflow-hidden"
+      // >
+      <View className="size-full justify-center items-center rounded-full mt-4">
+        <Image
+          source={icon}
+          className="size-5"
+          tintColor="#FF0000"
+          resizeMode="contain"
+        />
+      </View>
+
+      //   {/* <Text className="text-black text-base font-bold">{title}</Text> */}
+      // {/* </ImageBackground> */}
     );
   }
   return (

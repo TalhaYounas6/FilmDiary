@@ -48,6 +48,14 @@ const Saved = () => {
           className="w-15 h-12 mt-20 mb-5 self-center"
           resizeMode="contain"
         />
+        <View className="absolute inset-0 justify-center items-center">
+          <Image
+            source={images.lock}
+            className="w-48 h-48"
+            resizeMode="contain"
+          />
+          <Text className="text-white">Log in to view your favourites.</Text>
+        </View>
       </View>
     );
   }
@@ -133,10 +141,15 @@ const Saved = () => {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               !loading ? (
-                <View className="justify-center items-center mt-10">
-                  <Text className="text-white font-bold text-xl text-center">
-                    You have no favourites yet.
-                  </Text>
+                <View className="flex-1 bg-primary">
+                  <View className="absolute inset-0 justify-center items-center">
+                    <Image
+                      source={images.box}
+                      className="w-48 h-48"
+                      resizeMode="contain"
+                    />
+                    <Text className="text-white">Bit empty in here, no?</Text>
+                  </View>
                 </View>
               ) : null
             }
