@@ -66,6 +66,7 @@ const matchResults = () => {
               </Text>
             </View>
           )}
+          ItemSeparatorComponent={() => <View className="px-7"></View>}
         />
 
         <TouchableOpacity

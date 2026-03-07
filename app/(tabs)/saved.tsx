@@ -48,11 +48,6 @@ const Saved = () => {
           className="w-15 h-12 mt-20 mb-5 self-center"
           resizeMode="contain"
         />
-        <View className="justify-center items-center">
-          <Text className="text-white font-bold text-xl text-center">
-            Log in to access your favourite movies.
-          </Text>
-        </View>
       </View>
     );
   }

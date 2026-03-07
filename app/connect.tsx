@@ -100,9 +100,6 @@ const connect = () => {
 
       <SafeAreaView className="flex-1 px-6 justify-center">
         <View className="mb-10">
-          <Text className="text-secondary font-pbold text-lg uppercase tracking-widest text-center">
-            Film Sync
-          </Text>
           <Text className="text-white text-4xl font-pbold text-center mt-2">
             Find Your Crowd
           </Text>

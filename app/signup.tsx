@@ -115,7 +115,7 @@ export default function SignUp() {
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={loading}
-        className={`rounded-full py-4 mt-5 items-center ${loading ? "bg-blue-800" : "bg-blue-600"}`}
+        className={`rounded-full py-4 mt-5 items-center ${loading ? "bg-purple-800" : "bg-purple-600"}`}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />

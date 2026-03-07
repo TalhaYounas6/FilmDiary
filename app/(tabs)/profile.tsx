@@ -79,7 +79,7 @@ export default function Profile() {
 
           <TouchableOpacity
             onPress={() => router.push("/signin")}
-            className="w-full bg-black py-4 rounded-xl mb-4"
+            className="w-full bg-purple-600 py-4 rounded-xl mb-4"
           >
             <Text className="text-center font-bold text-white text-lg">
               Log In
@@ -88,7 +88,7 @@ export default function Profile() {
 
           <TouchableOpacity
             onPress={() => router.push("/signup")}
-            className="w-full border-2 bg-red-800 py-4 rounded-xl"
+            className="w-full border-2 bg-red-600 py-4 rounded-xl"
           >
             <Text className="text-center font-bold text-white text-lg">
               Create Account
@@ -168,12 +168,6 @@ export default function Profile() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="flex-1 px-6 pt-20">
-          {/* Header
-          <Text className="text-2xl font-extrabold text-white mb-8">
-            Edit Profile
-          </Text> */}
-
-          {/* Hero Avatar Section */}
           <View className="items-center mb-10 mt-2">
             <TouchableOpacity
               onPress={handleImagePick}
@@ -186,12 +180,10 @@ export default function Profile() {
                     ? { uri: avatar }
                     : require("@/assets/images/defaultAvatar.jpg")
                 }
-                // Made it bigger and gave it a brighter border
                 className="w-32 h-32 rounded-full border-4 border-purple-500"
                 resizeMode="cover"
               />
 
-              {/* Adjusted the badge to look seamless against the avatar border */}
               <View className="absolute bottom-0 right-2 bg-pink-500 w-10 h-10 rounded-full justify-center items-center border-4 border-primary">
                 <Text className="text-white font-black text-xl mb-1">+</Text>
               </View>
@@ -202,9 +194,7 @@ export default function Profile() {
             </Text>
           </View>
 
-          {/* Form Container */}
           <View className="w-full">
-            {/* Name Row */}
             <View className="flex-row gap-4 mb-6">
               <View className="flex-1">
                 <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
@@ -232,7 +222,6 @@ export default function Profile() {
               </View>
             </View>
 
-            {/* Username */}
             <View className="mb-6">
               <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
                 Username
@@ -247,7 +236,6 @@ export default function Profile() {
               />
             </View>
 
-            {/* Bio */}
             <View className="mb-10">
               <Text className="text-purple-200 text-sm font-semibold mb-2 ml-1">
                 Bio
@@ -264,18 +252,15 @@ export default function Profile() {
             </View>
           </View>
 
-          {/* Wrapped in a flex-row with a gap to put them side-by-side */}
           <View className="flex-row gap-4 mt-4 w-full">
             <TouchableOpacity
               onPress={handleSave}
               disabled={isSaving}
-              // Swapped w-full for flex-1, and reduced py-4 to py-3
               className={`flex-1 py-3 rounded-xl shadow-lg justify-center ${isSaving ? "bg-red-900" : "bg-purple-600"}`}
             >
               {isSaving ? (
                 <ActivityIndicator color="white" size="small" />
               ) : (
-                // Reduced text-lg to text-base
                 <Text className="text-white font-bold text-base text-center tracking-wide">
                   Save
                 </Text>
@@ -284,10 +269,8 @@ export default function Profile() {
 
             <TouchableOpacity
               onPress={handleLogout}
-              // Swapped w-full for flex-1, reduced py-4 to py-3, removed mt-4
               className="flex-1 py-3 rounded-xl border-2 border-purple-800 bg-transparent justify-center"
             >
-              {/* Reduced text-lg to text-base */}
               <Text className="text-purple-300 font-bold text-base text-center tracking-wide">
                 Log Out
               </Text>

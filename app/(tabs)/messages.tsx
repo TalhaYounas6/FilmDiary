@@ -26,7 +26,9 @@ const messages = () => {
   if (!user?.$id) {
     return (
       <View className="flex-1 bg-primary justify-center items-center">
-        <Text>Log in To View Your Messages</Text>
+        <Text className="text-white text-2xl">
+          Log in To View Your Messages
+        </Text>
       </View>
     );
   }
