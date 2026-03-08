@@ -103,7 +103,7 @@ export default function Index() {
               )}
 
               <Text className="text-lg text-white mt-5 mb-3 font-bold ml-2">
-                Latest Movies
+                Trending Movies
               </Text>
             </>
           }

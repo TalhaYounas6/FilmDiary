@@ -5,7 +5,7 @@ import highlight from "@/assets/images/highlight.png";
 import highlight2 from "@/assets/images/highlight2.png";
 import lock from "@/assets/images/lock.png";
 import rankingGradient from "@/assets/images/rankingGradient.png";
-
+import network from "@/assets/images/TechnologyNetwork.gif";
 export const images = {
   bg,
   highlight,
@@ -14,4 +14,5 @@ export const images = {
   bgpurple,
   box,
   lock,
+  network,
 };

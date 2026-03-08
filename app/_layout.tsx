@@ -61,10 +61,10 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <OverlayProvider>
-        <Chat client={chatClient}>
-          <AuthProvider>
-            <ThemeProvider value={MyDarkTheme}>
+      <ThemeProvider value={MyDarkTheme}>
+        <OverlayProvider>
+          <Chat client={chatClient}>
+            <AuthProvider>
               <StatusBar hidden={true} />
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
@@ -75,10 +75,10 @@ export default function RootLayout() {
                 <Stack.Screen name="matchResults" />
                 <Stack.Screen name="chat/[id]" />
               </Stack>
-            </ThemeProvider>
-          </AuthProvider>
-        </Chat>
-      </OverlayProvider>
+            </AuthProvider>
+          </Chat>
+        </OverlayProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
