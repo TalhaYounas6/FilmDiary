@@ -2,6 +2,7 @@ import { images } from "@/constants/images";
 import { useAuth } from "@/context/AuthContext";
 import { findCompatibleUsers } from "@/services/appwrite";
 import { router } from "expo-router";
+import LottieView from "lottie-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -153,10 +154,11 @@ const connect = () => {
 
       {loading ? (
         <SafeAreaView className="flex-1 justify-center items-center px-6 z-10">
-          <Image
-            source={images.network}
-            className="w-52 h-52 mb-8"
-            resizeMode="contain"
+          <LottieView
+            source={images.mapLottie}
+            style={{ width: 200, height: 200 }}
+            autoPlay
+            loop
           />
           <Text className="text-white text-2xl font-pbold text-center mb-2">
             Finding Matches
