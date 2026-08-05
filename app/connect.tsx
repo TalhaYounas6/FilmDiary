@@ -1,3 +1,4 @@
+import CustomModal from "@/components/CustomModal";
 import { images } from "@/constants/images";
 import { useAuth } from "@/context/AuthContext";
 import { findCompatibleUsers } from "@/services/appwrite";
@@ -26,6 +27,7 @@ const connect = () => {
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
   const [statusIndex, setStatusIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -87,10 +89,12 @@ const connect = () => {
 
         if (results === "Not_Enough_Movies") {
           setLoading(false);
-          Alert.alert(
-            "Taste Profile Incomplete",
-            "You need to save at least 30 movies so that we can understand your taste and suggest you the best possible buddies.",
-          );
+          setIsVisible(true);
+
+          // Alert.alert(
+          //   "Taste Profile Incomplete",
+          //   "You need to save at least 30 movies so that we can understand your taste and suggest you the best possible buddies.",
+          // );
           return;
         }
 
@@ -177,7 +181,6 @@ const connect = () => {
               Find Your Crowd
             </Text>
           </View>
-
           <View className="bg-black-100/80 border border-black-200 p-8 rounded-2xl mb-10 shadow-lg">
             <Text className="text-gray-100 text-lg font-pregular text-center leading-8">
               "Your taste is unique. But you aren't alone."
@@ -188,7 +191,6 @@ const connect = () => {
               find users who watch what you watch.
             </Text>
           </View>
-
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleFindBuddy}
@@ -198,11 +200,18 @@ const connect = () => {
               Find a Film Buddy
             </Text>
           </TouchableOpacity>
+          <CustomModal
+            isVisible={isVisible}
+            onConfirm={() => {
+              setIsVisible(false);
+            }}
+            title="Taste Profile Incomplete"
+            message="You need to save at least 30 movies so that we can understand your taste and suggest you the best possible buddies."
+          />
 
           <Text className="text-gray-500 text-xs text-center mt-6">
             Requires at least 30 saved movies to work accurately.
           </Text>
-
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-black-200 h-14 rounded-2xl justify-center items-center mb-6 mt-6 border border-black-100"

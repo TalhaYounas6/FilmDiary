@@ -32,7 +32,7 @@ export const MovieDetailsSkeleton = ({ goBack }: any) => {
             <View className="h-4 w-3/4 bg-dark-100 rounded-md" />
           </View>
 
-          {/* Generic MovieItem Skeletons (Genre, Language, etc.) */}
+          {/* Generic MovieItem Skeletons */}
           {[1, 2, 3].map((item) => (
             <View key={item} className="mt-6 w-full">
               <View className="h-5 w-20 bg-dark-100 rounded-md mb-2" />
@@ -42,7 +42,7 @@ export const MovieDetailsSkeleton = ({ goBack }: any) => {
         </View>
       </ScrollView>
 
-      {/* Back Button (We keep this active so users can bail out if loading takes too long) */}
+      {/* Back Button  */}
       <TouchableOpacity
         className="absolute bottom-5 left-0 right-0 mx-5 bg-accent rounded-lg py-3.5 flex flex-row items-center justify-center z-50"
         onPress={goBack}
@@ -52,7 +52,7 @@ export const MovieDetailsSkeleton = ({ goBack }: any) => {
           className="size-5 mr-1 mt-0.5 rotate-180"
           tintColor="#fff"
         />
-        {/* Replace with your actual icons.arrow if needed */}
+
         <Text className="text-white font-semibold text-base">Go Back</Text>
       </TouchableOpacity>
     </View>
